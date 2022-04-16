@@ -1,0 +1,38 @@
+{
+  "name": "@squirrel-forge/ui-form",
+  "version": "0.5.0",
+  "description": "An async Form component, event based with extensive plugin support, made for the browser and babel compatible.",
+  "main": "src/es6/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "directories": {
+    "docs": "docs",
+    "src": "src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/squirrel-forge/ui-form.git"
+  },
+  "keywords": [
+    "ui",
+    "form",
+    "async",
+    "plugins",
+    "es6",
+    "babel",
+    "browser"
+  ],
+  "author": "Daniel Hartwell <me@siux.info> (http://siux.info)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/squirrel-forge/ui-form/issues"
+  },
+  "homepage": "https://github.com/squirrel-forge/ui-form#readme",
+  "devDependencies": {
+    "@squirrel-forge/simple-webpack": "^0.9.1"
+  },
+  "dependencies": {
+    "@squirrel-forge/ui-core": "^0.8.3"
+  }
+}
