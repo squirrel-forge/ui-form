@@ -2,7 +2,7 @@
 > [Back to table of contents](../README.md)
 
 # Documentation
-### Javascript / Abstracts
+### Javascript / Form
 > [Table of contents](../README.md) <[ Form ]> [Plugins](Plugins.md)
 
 ## Table of contents
