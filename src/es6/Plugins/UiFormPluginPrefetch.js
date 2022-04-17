@@ -100,11 +100,11 @@ export class UiFormPluginPrefetch extends UiPlugin {
 
                 // Reload page on error
                 // @type {boolean}
-                reloadOnError : true,
+                reloadOnError : false,
 
                 // Reload after delay
                 // @type {number}
-                reloadOnErrorDelay : 3000,
+                reloadOnErrorDelay : 5000,
             },
         };
 
