@@ -310,7 +310,7 @@ export class UiFormComponent extends UiComponent {
      * @param {boolean} report - Report errors
      * @return {boolean} - True if valid
      */
-    isValid( report = true ) {
+    isValid( report = false ) {
         const options = this.config.exposed.validate;
         if ( options ) {
 
@@ -318,15 +318,15 @@ export class UiFormComponent extends UiComponent {
             if ( options === true ) {
 
                 // Check if silent or report
-                const check = report ? 'checkValidity' : 'reportValidity';
+                const check = report ? 'reportValidity' : 'checkValidity';
                 if ( this.dom[ check ] && !this.dom[ check ]() ) {
-                    if ( this.debug ) this.debug.log( this.constructor.name + '::form_valid Validate prevented submit' );
+                    if ( this.debug ) this.debug.log( this.constructor.name + '::isValid Validate prevented submit' );
                     return false;
                 }
             } else if ( this.debug ) {
 
                 // TODO: run plugins custom validation!
-                this.debug.warn( this.constructor.name + '::form_valid NOT IMPLEMENTED: validation plugins', options );
+                this.debug.warn( this.constructor.name + '::isValid NOT IMPLEMENTED: validation plugins', options, report );
             }
         }
         return true;

@@ -109,7 +109,7 @@ class UiFormComponent extends UiComponent {
   constructor( element, settings = null, plugins = [], extend = [], init = true, debug = null ) {}
   init() {} // void
   bind() {} // void
-  isValid() {} // boolean
+  isValid( report = false ) {} // boolean
   canSubmit() {} // boolean
   submit( silent = false ) {} // boolean
   abortSubmit() {} // void
