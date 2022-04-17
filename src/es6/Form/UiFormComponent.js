@@ -222,7 +222,7 @@ export class UiFormComponent extends UiComponent {
             bindNodeList( resets, [
                 [ 'click', ( event ) => {
                     event.preventDefault();
-                    this.reset( event.target.getAttribute( 'data-soft' ) === 'true' );
+                    this.reset( event.currentTarget.getAttribute( 'data-soft' ) === 'true' );
                 } ],
             ] );
         }
