@@ -1,6 +1,6 @@
 {
   "name": "@squirrel-forge/ui-form",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "An async Form component, event based with extensive plugin support, made for the browser and babel compatible.",
   "main": "src/es6/index.js",
   "scripts": {
