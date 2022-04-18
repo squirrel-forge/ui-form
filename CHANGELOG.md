@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.3
+ - Fixed *UiFormPluginFieldControl* value states debug when disabled.
+ - Fixed/completed *UiFormPluginFieldControl* input event binding types.
+
 ## 0.5.2
  - Fixed soft reset detect via attribute to use currentTarget which is always the button.
 

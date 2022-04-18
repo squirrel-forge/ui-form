@@ -82,7 +82,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                         const host = this.#get_host( element, 'input', 'error' );
                         if ( host ) host.innerHTML = '';
                     } },
-                    'submit.disabled' : { classOn : 'submit--disabled' },
+                    'submit.disabled' : { classOn : 'button--disabled' },
 
                     /* TODO: Group states
                     'group.disabled' : { classOn : 'input-group--disabled' },
@@ -106,8 +106,8 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     ready : '*',
                     focus : '*',
                     blur : '*',
-                    input : [ 'textarea', 'input-password', 'input-search', 'input-number', 'input-text', 'input-email' ],
-                    change : [ 'select', 'textarea', 'input-checkbox', 'input-file', 'input-radio', 'input-range', 'input-date' ],
+                    input : [ 'textarea-textarea', 'input-password', 'input-search', 'input-number', 'input-text', 'input-email', 'input-tel', 'input-url' ],
+                    change : [ 'select-select-one', 'select-select-multiple', 'input-checkbox', 'input-file', 'input-radio', 'input-range', 'input-date', 'input-color', 'input-time' ],
                 },
 
                 // Error handling
@@ -280,7 +280,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
             } else if ( this.debug ) {
                 this.debug.warn( this.constructor.name + '::field_value_state No values plugin available' );
             }
-        } else if ( this.debug ) {
+        } else if ( options.valueStates && this.debug ) {
             this.debug.warn( this.constructor.name + '::field_value_state Unknown event type:', event );
         }
     }
