@@ -135,7 +135,7 @@ export class UiFormComponent extends UiComponent {
 
             // Fake/hidden submit button used for internal submit handling
             // @type {string}
-            fake : '<button class="ui-form-fake-submit" type="submit" style="'
+            fake : '<button data-ui-form-fake-submit type="submit" style="'
                 + 'z-index:-1;position:fixed;left:-1000px;width:1px;height:1px;'
                 + 'padding:0;margin:0;border:0;opacity:0.01'
                 + '" tabindex="-1" />',
@@ -154,7 +154,7 @@ export class UiFormComponent extends UiComponent {
 
                 // Fake/hidden internal submit button created through the fake option
                 // @type {string}
-                fake : '.ui-form-fake-submit',
+                fake : '[data-ui-form-fake-submit]',
             }
         };
 
@@ -166,6 +166,16 @@ export class UiFormComponent extends UiComponent {
             initialized : {
                 classOn : 'ui-form--initialized',
                 unsets : [ 'sending', 'success', 'error', 'complete' ],
+            },
+            valid : {
+                global : false,
+                classOn : 'ui-form--valid',
+                unsets : [ 'invalid' ],
+            },
+            invalid : {
+                global : false,
+                classOn : 'ui-form--invalid',
+                unsets : [ 'valid' ],
             },
             sending : {
                 classOn : 'ui-form--sending',
@@ -195,7 +205,8 @@ export class UiFormComponent extends UiComponent {
      */
     init() {
 
-        // No default html5 validation, is triggered by code
+        // No default html5 validation
+        // it's triggered by code in the isValid method
         this.dom.noValidate = true;
 
         // Add fake submit
@@ -238,6 +249,8 @@ export class UiFormComponent extends UiComponent {
 
         // Form events
         this.addEventList( [
+            [ 'valid', ( event ) => { this.event_state( event ); } ],
+            [ 'invalid', ( event ) => { this.event_state( event ); } ],
             [ 'submit', ( event ) => { this.#event_submit( event ); } ],
             [ 'sending', ( event ) => { this.event_state( event ); } ],
             [ 'success', ( event ) => { this.event_state( event ); } ],
@@ -277,12 +290,11 @@ export class UiFormComponent extends UiComponent {
         // Allow plugins and external handlers to prevent submission
         this.dispatchEvent( 'before.submit', { event } );
 
-        // Form validation
-        if ( !this.isValid() ) event.preventDefault();
-
         // Abort submit, default behaviour was prevented
         if ( event.defaultPrevented ) {
-            if ( this.debug ) this.debug.group( this.constructor.name + '::event_submit default prevented via before.submit event' );
+            if ( this.debug ) {
+                this.debug.log( this.constructor.name + '::event_submit default prevented via isValid method or before.submit event' );
+            }
             return;
         }
 
@@ -312,24 +324,41 @@ export class UiFormComponent extends UiComponent {
      */
     isValid( report = false ) {
         const options = this.config.exposed.validate;
+        let is_valid = true;
         if ( options ) {
 
             // Default html5 validation
             if ( options === true ) {
 
-                // Check if silent or report
+                // Check if silent or report, methods should always be available
                 const check = report ? 'reportValidity' : 'checkValidity';
-                if ( this.dom[ check ] && !this.dom[ check ]() ) {
-                    if ( this.debug ) this.debug.log( this.constructor.name + '::isValid Validate prevented submit' );
-                    return false;
+                if ( !this.dom[ check ]() ) {
+                    if ( this.debug ) this.debug.log( this.constructor.name + '::isValid Form data invalid using:', check );
+                    is_valid = false;
                 }
-            } else if ( this.debug ) {
+            } else if ( typeof options === 'string' ) {
 
-                // TODO: run plugins custom validation!
-                this.debug.warn( this.constructor.name + '::isValid NOT IMPLEMENTED: validation plugins', options, report );
+                // Check if the plugin exists
+                if ( !this.plugins.has( options ) ) {
+                    throw new UiFormComponentException( 'Validation failed due to unknown form plugin: ' + options );
+                }
+
+                // Run plugin validation
+                const result = this.plugins.exec( options, 'validateForm', [ report ] );
+                if ( typeof result !== 'boolean' ) {
+                    throw new UiFormComponentException( 'Validation plugin did not return a boolean value' );
+                }
+                is_valid = result;
+            } else {
+
+                // Invalid option type
+                throw new UiFormComponentException( 'The validate option must be a boolean or a plugin reference string' );
             }
+
+            // Dispatch event only when enabled
+            this.dispatchEvent( is_valid ? 'valid' : 'invalid', { report } );
         }
-        return true;
+        return is_valid;
     }
 
     /**
@@ -344,7 +373,13 @@ export class UiFormComponent extends UiComponent {
 
         // Submit click validation
         if ( !this.isValid( true ) ) {
+
+            // Swallow the event and pretend it never happened
             event.preventDefault();
+            event.stopPropagation();
+
+            // Prevents other click handlers, like the recaptcha plugin from running
+            event.stopImmediatePropagation();
             return;
         }
 
@@ -410,18 +445,20 @@ export class UiFormComponent extends UiComponent {
     /**
      * Submit form
      * @public
+     * @param {boolean} report - Report validation errors
      * @param {boolean} silent - Set true for a boolean result
      * @return {boolean} - Submitted state
      */
-    submit( silent = false ) {
-        if ( this.canSubmit( silent ) && this.config.exposed.fake ) {
+    submit( report = true, silent = false ) {
+        if ( this.canSubmit( silent ) ) {
             const fake = this.getDomRefs( 'fake', false );
-            if ( fake && fake.click ) {
-                fake.click();
-            } else {
+            if ( !fake || !fake.click ) {
                 throw new UiFormComponentException( 'No fake submit available' );
             }
-            return true;
+            if ( this.isValid( report ) ) {
+                fake.click();
+                return true;
+            }
         } else if ( this.debug ) {
             this.debug.error( this.constructor.name + '::submit Not a submittable state or no fake submit defined' );
         }

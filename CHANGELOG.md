@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0
+ - Added validation events and states, *valid* and *invalid*.
+ - Added validation plugin support.
+ - Moved submit event validation to submit method, to reduce double calling.
+ - Changed internal fake submit selector.
+
 ## 0.5.3
  - Fixed *UiFormPluginFieldControl* value states debug when disabled.
  - Fixed/completed *UiFormPluginFieldControl* input event binding types.
