@@ -78,7 +78,7 @@ const defaults = {
 
     // Fake/hidden submit button used for internal submit handling
     // @type {string}
-    fake : '<button class="ui-form-fake-submit" ... />',
+    fake : '<button data-ui-form-fake-submit ... />',
 
     // Dom references
     // @type {Object}
@@ -94,7 +94,7 @@ const defaults = {
 
         // Fake/hidden internal submit button created through the fake option
         // @type {string}
-        fake : '.ui-form-fake-submit',
+        fake : '[data-ui-form-fake-submit]',
     }
 };
 ```
