@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0
+ - Cleaned up the form validation logic, includes pure html5 option and plugins.
+ - Added field validation support including pure html5 option and plugins.
+ - Added submit onclick disabled error messages support.
+ - Added *UiFormPluginValidate* and *Html5Validator* classes.
+ - Added *FormValues.fieldname()* and *UiFormPluginValues.getFieldName()* methods.
+ - Updated docs.
+
 ## 0.6.0
  - Added validation events and states, *valid* and *invalid*.
  - Added validation plugin support.
