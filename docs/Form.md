@@ -7,6 +7,7 @@
 
 ## Table of contents
  - [FormValues](#FormValues)
+ - [Html5Validator](#Html5Validator)
  - [UiFormComponent](#UiFormComponent)
 
 ---
@@ -32,6 +33,24 @@ For more details check the [FormValues source file](../../src/es6/Form/FormValue
 
 ---
 
+### Html5Validator
+Html5Validator class - Class for handling form field validation via html5 methods.
+
+#### Class overview
+```javascript
+class Html5Validator {
+  constructor( form, fields = 'input, select, textarea', debug = null ) {}
+  errorAttribute : string
+  reset() {} // void
+  data() {} // Html5Validator
+  valid( only ) {} // boolean
+  errors() {} // null|Object
+}
+```
+For more details check the [Html5Validator source file](../../src/es6/Form/Html5Validator.js).
+
+---
+
 ### UiFormComponent
 UiFormComponent class - Async form component with events and plugins support.
 
@@ -48,9 +67,17 @@ const defaults = {
     // @type {Object}
     asyncOptions : {},
 
-    // Validation, currently supports html5 validation
+    // Skip validation code
     // @type {boolean}
-    validate : false,
+    skipValidate : false,
+
+    // Pure HTML5 validation only, no plugins will run
+    // @type {boolean}
+    validatePureHtml5 : false,
+
+    // Validation report level
+    // @type {boolean}
+    validateReport : true,
 
     // Default state
     // @type {string}
@@ -107,6 +134,7 @@ class UiFormComponent extends UiComponent {
   static makeAll( plugins = [], debug = null, context = document ) {} // UiFormComponent[]
   static selector : String
   constructor( element, settings = null, plugins = [], extend = [], init = true, debug = null ) {}
+  valid : Boolean
   init() {} // void
   bind() {} // void
   isValid( report = false ) {} // boolean

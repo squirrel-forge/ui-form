@@ -10,6 +10,7 @@
  - [UiFormPluginJSONResponse](#UiFormPluginJSONResponse)
  - [UiFormPluginPrefetch](#UiFormPluginPrefetch)
  - [UiFormPluginReCaptcha](#UiFormPluginReCaptcha)
+ - [UiFormPluginValidate](#UiFormPluginValidate)
  - [UiFormPluginValues](#UiFormPluginValues)
 
 ---
@@ -22,14 +23,52 @@ Component settings are changed/extended as following.
 ```javascript
 const extendConfig = {
     fields : {
-        
+
+        // Validation options
+        // @type {Object}
+        validate : {
+
+            // Skip validation code
+            // @type {boolean}
+            skip : false,
+
+            // Pure HTML5 validation only, no plugins will run
+            // @type {boolean}
+            pureHtml5 : false,
+
+            // Error reporting level for each event
+            // @type {Object}
+            eventReporting : {
+                blur : true,
+                change : true,
+            },
+        },
+
         // Submit disabled control by event types
         // @type {Object}
         submit : {
+
+            // Disable submit on events
+            // @type {Array<string>}
             disableOn : [ 'loading', 'sending', 'success' ],
+
+            // Enable submit on events
+            // @type {Array<string>}
             enableOn : [ 'default', 'reset' ],
+
+            // Show disabled error
+            // @type {boolean}
+            showDisabledError : true,
+
+            // Error to show when clicking disabled submit
+            // @type {Object|Function}
+            disabledErrors : { general : [ 'Form has errors or is already completed.' ] },
+
+            // Wraps the submit button to catch event when disabled
+            // @type {string}
+            disabledWrap : '<div data-ui-form-fields-submit-disabled />',
         },
-        
+
         // Input/group state and error selectors
         // @type {Object}
         selectors : {
@@ -42,10 +81,11 @@ const extendConfig = {
                 error : '.input-group__error',
             },
         },
-        
+
         // Input states and relations
         // @†ype {Object}
         states : {
+            'field.was.validated' : { classOn : 'input--was-validated' },
             'field.disabled' : { classOn : 'input--disabled' },
             'field.focus' : { classOn : 'input--focus', unsets : [ 'field.blur', 'field.error' ] },
             'field.blur' : { classOn : 'input--blur', unsets : [ 'field.focus', 'field.error.visible' ] },
@@ -55,17 +95,17 @@ const extendConfig = {
             'field.change' : { classOn : 'input--change', autoUnset : true, unsets : [ 'field.error.visible' ] },
             'field.error' : { classOn : 'input--error' },
             'field.error.visible' : { classOn : 'input--error-visible', callbackOff : ( name, element ) => { /* Clears error host */ } },
-            'submit.disabled' : { classOn : 'submit--disabled' },
+            'submit.disabled' : { classOn : 'button--disabled' },
         },
-        
+
         // Use values states, filled, empty, input and change
         // @type {boolean}
         valueStates : true,
-        
+
         // Input events to bind
         // @type {string}
         bindEvents : [ 'focus', 'blur', 'input', 'change' ],
-        
+
         // Event binding rules
         // @type {Object}
         eventRules : {
@@ -73,10 +113,10 @@ const extendConfig = {
             ready : '*',
             focus : '*',
             blur : '*',
-            input : [ 'textarea', 'input-password', 'input-search', 'input-number', 'input-text', 'input-email' ],
-            change : [ 'select', 'textarea', 'input-checkbox', 'input-file', 'input-radio', 'input-range', 'input-date' ],
+            input : [ 'textarea-textarea', 'input-password', 'input-search', 'input-number', 'input-text', 'input-email', 'input-tel', 'input-url' ],
+            change : [ 'select-select-one', 'select-select-multiple', 'input-checkbox', 'input-file', 'input-radio', 'input-range', 'input-date', 'input-color', 'input-time' ],
         },
-        
+
         // Error handling
         // @type {Object}
         errors : {
@@ -107,7 +147,7 @@ const extendConfig = {
 
             // Clear errors on soft reset
             // @type {boolean}
-            clearOnResetSoft : true,
+            clearOnResetSoft : false,
 
             // Field map or callback for mapping
             // @type {null|Object|Function}
@@ -134,10 +174,14 @@ const extendConfig = {
     // Dom references
     // @type {Object}
     dom : {
-        
+
         // Input fields selector
         // @type {string}
-        fields : 'input, select, textarea'
+        fields : 'input, select, textarea',
+
+        // Disabled submit wrapper selector
+        // @type {string}
+        disabledSubmit : '[data-ui-form-fields-submit-disabled]',
     },
 };
 ```
@@ -150,6 +194,10 @@ class UiFormPluginFieldControl extends UiPlugin {
   constructor( options, context, debug ) {}
   initComponent( context ) {} // void
   submitDisable( state = true ) {} // void
+  fieldSetState( element, state ) {} // HTMLElement
+  fieldUnsetState( element, state ) {} // HTMLElement
+  fieldIsState( element, state ) {} // boolean
+  fieldIsValid( field, report ) {} // boolean
   clearAllFieldsErrors( error = true, visibility = true, only = null ) {} // void
   clearFieldErrors( input, error = true, visibility = true ) {} // void
   remapFieldsErrors( errors, options ) {} // void
@@ -365,6 +413,77 @@ class UiFormPluginReCaptcha extends UiPlugin {
 }
 ```
 For more details check the [UiFormPluginReCaptcha source file](../../src/es6/Plugins/UiFormPluginReCaptcha.js).
+
+---
+
+### UiFormPluginValidate
+UiFormPluginValidate class - UiForm plugin for input and form validation.
+
+#### Component settings
+Component settings are changed/extended as following.
+```javascript
+const extendConfig = {
+
+    // Extend validation options
+    // @type {Object}
+    validate : {
+
+        // Only do states, do not run plugin showFieldsErrors or showFieldErrors
+        // @type {boolean}
+        onlyState : false,
+
+        // Clear states on form reset
+        // @type {boolean}
+        clearOnReset : true,
+
+        // Clear states on soft reset
+        // @type {boolean}
+        clearOnResetSoft : false,
+
+        // Validator factory function
+        // @type {Function}
+        validator : null,
+    },
+
+    // Extend fields
+    // @type {Object}
+    fields : {
+
+        // Input states and relations
+        // @†ype {Object}
+        states : {
+            'field.valid' : { classOn : 'input--valid', unsets : [ 'field.invalid' ] },
+            'field.invalid' : { classOn : 'input--invalid', unsets : [ 'field.valid' ] },
+        },
+
+        // Validation options
+        // @type {Object}
+        validate : {
+
+            // Error reporting level for each event
+            // @type {Object}
+            eventReporting : {
+                blur : 'error',
+                input : 'state',
+                change : 'error',
+            },
+        },
+    },
+};
+```
+
+#### Class overview
+```javascript
+class UiFormPluginValidate extends UiPlugin {
+  static pluginName : String
+  constructor( options, context, debug ) {}
+  initComponent( context ) {} // void
+  validateForm( report = 'error' ) {} // boolean
+  validateField( input, report = 'error' ) {} // boolean
+  lastErrors() {} // null|Object
+}
+```
+For more details check the [UiFormPluginValidate source file](../../src/es6/Plugins/UiFormPluginValidate.js).
 
 ---
 
