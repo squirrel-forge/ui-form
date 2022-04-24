@@ -127,6 +127,15 @@ export class UiFormPluginValues extends UiPlugin {
     }
 
     /**
+     * Get fieldname from input
+     * @param {HTMLElement} input - Input element
+     * @return {string} - Fieldname
+     */
+    getFieldName( input ) {
+        return this.#values.fieldname( input );
+    }
+
+    /**
      * Get inputs related to a fieldname
      * @public
      * @param {string} field - Field name

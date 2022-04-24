@@ -246,6 +246,44 @@ export class FormValues {
     }
 
     /**
+     * Get fieldname related to given input
+     * @param {HTMLElement} input - Input element
+     * @return {string} - Input name
+     */
+    fieldname( input ) {
+        if ( !input || typeof input.name !== 'string' || !input.name.length ) {
+            throw new FormValuesException( 'Argument input must be a HTMLElement with a name property' );
+        }
+        let name = input.name;
+
+        // Convert name to dot syntax
+        name = name.replace( /\[/g, '.' ).replace( /]/g, '' );
+
+        // Require explicit name for all that have two unknowns
+        if ( name.includes( '..' ) ) {
+            if ( input.hasAttribute( 'data-fieldname' ) ) {
+                name = input.getAttribute( 'data-fieldname' );
+                if ( name && name.length ) return name;
+            }
+            throw new FormValuesException( 'Complex fields require a data-fieldname attribute' );
+        }
+
+        // Get array position
+        if ( name[ name.length - 1 ] === '.' ) {
+            name = name.substr( 0, name.length - 1 );
+            const selector = '[name^="' + input.name.substr( 0, input.name.length - 2 ) + '"]';
+            const inputs = this.#form.querySelectorAll( selector );
+            for ( let i = 0; i < inputs.length; i++ ) {
+                if ( inputs[ i ] === input ) {
+                    name += '.' + i;
+                    break;
+                }
+            }
+        }
+        return name;
+    }
+
+    /**
      * Set values recursive
      * @private
      * @param {*|Array|Object} values - Values object
