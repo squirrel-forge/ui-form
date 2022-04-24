@@ -33,6 +33,6 @@
     "@squirrel-forge/simple-webpack": "^0.9.1"
   },
   "dependencies": {
-    "@squirrel-forge/ui-core": "^0.8.3"
+    "@squirrel-forge/ui-core": "^0.8.8"
   }
 }
