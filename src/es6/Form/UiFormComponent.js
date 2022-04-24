@@ -105,9 +105,17 @@ export class UiFormComponent extends UiComponent {
             // @type {Object}
             asyncOptions : {},
 
-            // Validation, currently supports html5 validation
+            // Skip validation code
             // @type {boolean}
-            validate : false,
+            skipValidate : false,
+
+            // Pure HTML5 validation only, no plugins will run
+            // @type {boolean}
+            validatePureHTML5 : false,
+
+            // Validation report level
+            // @type {boolean}
+            validateReport : true,
 
             // Default state
             // @type {string}
@@ -166,16 +174,6 @@ export class UiFormComponent extends UiComponent {
             initialized : {
                 classOn : 'ui-form--initialized',
                 unsets : [ 'sending', 'success', 'error', 'complete' ],
-            },
-            valid : {
-                global : false,
-                classOn : 'ui-form--valid',
-                unsets : [ 'invalid' ],
-            },
-            invalid : {
-                global : false,
-                classOn : 'ui-form--invalid',
-                unsets : [ 'valid' ],
             },
             sending : {
                 classOn : 'ui-form--sending',
@@ -317,46 +315,51 @@ export class UiFormComponent extends UiComponent {
     }
 
     /**
+     * Valid state getter
+     * @public
+     * @return {boolean} - True if valid
+     */
+    get valid() {
+        return this.isValid( false );
+    }
+
+    /**
      * Check if form is valid
      * @public
      * @param {boolean} report - Report errors
      * @return {boolean} - True if valid
      */
     isValid( report = false ) {
-        const options = this.config.exposed.validate;
-        let is_valid = true;
-        if ( options ) {
 
-            // Default html5 validation
-            if ( options === true ) {
+        // Skip validation
+        if ( this.config.get( 'skipValidate' ) ) return true;
 
-                // Check if silent or report, methods should always be available
-                const check = report ? 'reportValidity' : 'checkValidity';
-                if ( !this.dom[ check ]() ) {
-                    if ( this.debug ) this.debug.log( this.constructor.name + '::isValid Form data invalid using:', check );
-                    is_valid = false;
-                }
-            } else if ( typeof options === 'string' ) {
-
-                // Check if the plugin exists
-                if ( !this.plugins.has( options ) ) {
-                    throw new UiFormComponentException( 'Validation failed due to unknown form plugin: ' + options );
-                }
-
-                // Run plugin validation
-                const result = this.plugins.exec( options, 'validateForm', [ report ] );
-                if ( typeof result !== 'boolean' ) {
-                    throw new UiFormComponentException( 'Validation plugin did not return a boolean value' );
-                }
-                is_valid = result;
-            } else {
-
-                // Invalid option type
-                throw new UiFormComponentException( 'The validate option must be a boolean or a plugin reference string' );
+        // Pure html5 validation
+        if ( this.config.get( 'validatePureHTML5' ) ) {
+            const check = report ? 'reportValidity' : 'checkValidity';
+            if ( !this.dom[ check ]() ) {
+                if ( this.debug ) this.debug.log( this.constructor.name + '::isValid Form data invalid using:', check );
+                return false;
             }
+            return true;
+        }
 
-            // Dispatch event only when enabled
-            this.dispatchEvent( is_valid ? 'valid' : 'invalid', { report } );
+        // Plugin validation
+        const results = this.plugins.run( 'validateForm', [ report ] );
+        let is_valid = true;
+        const reasons = [];
+        const entries = Object.entries( results );
+        for ( let i = 0; i < entries.length; i++ ) {
+            const [ plugin, result ] = entries[ i ];
+            if ( result === false ) {
+                is_valid = false;
+                reasons.push( plugin );
+            }
+        }
+
+        // Notify reasons
+        if ( this.debug && !is_valid ) {
+            this.debug.log( this.constructor.name + '::isValid Form invalid, reasons:', reasons );
         }
         return is_valid;
     }
@@ -372,7 +375,7 @@ export class UiFormComponent extends UiComponent {
         if ( this.debug ) this.debug.log( this.constructor.name + '::event_submitClick', event, button );
 
         // Submit click validation
-        if ( !this.isValid( true ) ) {
+        if ( !this.isValid( this.config.exposed.validateReport ) ) {
 
             // Swallow the event and pretend it never happened
             event.preventDefault();
@@ -445,16 +448,17 @@ export class UiFormComponent extends UiComponent {
     /**
      * Submit form
      * @public
-     * @param {boolean} report - Report validation errors
+     * @param {undefined|null|'state'|'error'|boolean} report - Report errors
      * @param {boolean} silent - Set true for a boolean result
      * @return {boolean} - Submitted state
      */
-    submit( report = true, silent = false ) {
+    submit( report, silent = false ) {
         if ( this.canSubmit( silent ) ) {
             const fake = this.getDomRefs( 'fake', false );
             if ( !fake || !fake.click ) {
                 throw new UiFormComponentException( 'No fake submit available' );
             }
+            if ( typeof report === 'undefined' ) report = this.config.exposed.validateReport;
             if ( this.isValid( report ) ) {
                 fake.click();
                 return true;
