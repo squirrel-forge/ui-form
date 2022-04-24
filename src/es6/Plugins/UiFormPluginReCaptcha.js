@@ -273,6 +273,8 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      * @return {void}
      */
     #bind_submit() {
+
+        // TODO: use regular dom submit references and replace config setting with new selector
         const submit = this.context.getDomRefs( 'recaptchaSubmit', false );
         if ( !submit ) {
             throw new UiFormPluginReCaptchaException( 'Requires a ReCaptcha marked submit button' );
