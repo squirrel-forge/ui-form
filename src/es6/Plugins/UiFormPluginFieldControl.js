@@ -73,7 +73,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
                     // Disable submit on events
                     // @type {Array<string>}
-                    disableOn : [ 'loading', 'sending', 'success', 'error' ],
+                    disableOn : [ 'loading', 'sending', 'success' ],
 
                     // Enable submit on events
                     // @type {Array<string>}
@@ -85,7 +85,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
                     // Error to show when clicking disabled submit
                     // @type {Object|Function}
-                    disabledErrors : { general : [ 'Please complete the form before submitting.' ] },
+                    disabledErrors : { general : [ 'Form has errors or is already completed.' ] },
 
                     // Wraps the submit button to catch event when disabled
                     // @type {string}
@@ -123,7 +123,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     } },
                     'submit.disabled' : { classOn : 'button--disabled' },
 
-                    /* TODO: Group states
+                    /* TODO: Group states, for grouped radios etc
                     'group.disabled' : { classOn : 'input-group--disabled' },
                     'group.error' : { classOn : 'input-group--error' },
                     'group.error.visible' : { classOn : 'input-group--error-visible' },
@@ -325,7 +325,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
         const host = this.fieldSetState( element, event.type );
         this.#field_value_state( event, element, host );
         this.#field_validation( event, element );
-        if ( this.debug ) this.debug.log( this.constructor.name + '::event_input', element, host );
+        if ( this.debug ) this.debug.log( this.constructor.name + '::event_input', event.type, element, host );
     }
 
     /**
