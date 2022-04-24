@@ -2,7 +2,7 @@
  * Requires
  */
 import { UiPlugin, ElementClassStates } from '@squirrel-forge/ui-core';
-import { Exception, isPojo, isEmpty, getElementTagType } from '@squirrel-forge/ui-util';
+import { Exception, isPojo, isEmpty, getElementTagType, wrap, str2node } from '@squirrel-forge/ui-util';
 
 /**
  * Ui form plugin field control exception
@@ -47,11 +47,49 @@ export class UiFormPluginFieldControl extends UiPlugin {
         this.extendConfig = {
             fields : {
 
+                // Validation options
+                // @type {Object}
+                validate : {
+
+                    // Skip validation code
+                    // @type {boolean}
+                    skip : false,
+
+                    // Pure HTML5 validation only, no plugins will run
+                    // @type {boolean}
+                    pureHtml5 : false,
+
+                    // Error reporting level for each event
+                    // @type {Object}
+                    eventReporting : {
+                        blur : true,
+                        change : true,
+                    },
+                },
+
                 // Submit disabled control by event types
                 // @type {Object}
                 submit : {
-                    disableOn : [ 'loading', 'sending', 'success' ],
+
+                    // Disable submit on events
+                    // @type {Array<string>}
+                    disableOn : [ 'loading', 'sending', 'success', 'error' ],
+
+                    // Enable submit on events
+                    // @type {Array<string>}
                     enableOn : [ 'default', 'reset' ],
+
+                    // Show disabled error
+                    // @type {boolean}
+                    showDisabledError : true,
+
+                    // Error to show when clicking disabled submit
+                    // @type {Object|Function}
+                    disabledErrors : { general : [ 'Please complete the form before submitting.' ] },
+
+                    // Wraps the submit button to catch event when disabled
+                    // @type {string}
+                    disabledWrap : '<div data-ui-form-fields-submit-disabled />',
                 },
 
                 // Input/group state and error selectors
@@ -70,6 +108,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 // Input states and relations
                 // @†ype {Object}
                 states : {
+                    'field.was.validated' : { classOn : 'input--was-validated' },
                     'field.disabled' : { classOn : 'input--disabled' },
                     'field.focus' : { classOn : 'input--focus', unsets : [ 'field.blur', 'field.error' ] },
                     'field.blur' : { classOn : 'input--blur', unsets : [ 'field.focus', 'field.error.visible' ] },
@@ -140,7 +179,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
                     // Clear errors on soft reset
                     // @type {boolean}
-                    clearOnResetSoft : true,
+                    clearOnResetSoft : false,
 
                     // Field map or callback for mapping
                     // @type {null|Object|Function}
@@ -170,7 +209,11 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
                 // Input fields selector
                 // @type {string}
-                fields : 'input, select, textarea'
+                fields : 'input, select, textarea',
+
+                // Disabled submit wrapper selector
+                // @type {string}
+                disabledSubmit : '[data-ui-form-fields-submit-disabled]',
             },
         };
     }
@@ -203,6 +246,34 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
         // Bind form input element events
         this.#bind_inputs( context );
+
+        // Setup submit disabled error support
+        this.#setup_submit_disable_support();
+    }
+
+    /**
+     * Setup wrapper and handlers for disabled submit error support
+     * @return {void}
+     */
+    #setup_submit_disable_support() {
+        const options = this.context.config.get( 'fields.submit' );
+
+        // Wrap submits if showDisabledError is active
+        if ( options.showDisabledError ) {
+            const fake = this.context.getDomRefs( 'fake', false );
+            const refs = this.context.getDomRefs( 'submit' );
+            for ( let i = 0; i < refs.length; i++ ) {
+                if ( refs[ i ] !== fake ) {
+
+                    // Wrap submit
+                    const wrapper = str2node( options.disabledWrap, false );
+                    wrap( refs[ i ], wrapper );
+
+                    // Bind event
+                    wrapper.addEventListener( 'click', ( event ) => { this.#event_clickDisabled( event ); } );
+                }
+            }
+        }
     }
 
     /**
@@ -251,11 +322,152 @@ export class UiFormPluginFieldControl extends UiPlugin {
      * @return {void}
      */
     #event_input( event, element ) {
-        const host = this.#get_host( element, 'input' );
-        const state_name = 'field.' + event.type;
-        if ( this.#states.has( state_name ) ) this.#states.set( state_name, host );
+        const host = this.fieldSetState( element, event.type );
         this.#field_value_state( event, element, host );
-        if ( this.debug ) this.debug.log( this.constructor.name + '::event_input', state_name, host );
+        this.#field_validation( event, element );
+        if ( this.debug ) this.debug.log( this.constructor.name + '::event_input', element, host );
+    }
+
+    /**
+     * Submit disabled event
+     * @param {Event} event - Click event
+     * @return {void}
+     */
+    #event_clickDisabled( event ) {
+        if ( event.currentTarget && event.currentTarget.firstElementChild.disabled ) {
+            const options = this.context.config.get( 'fields.submit' );
+            let errors = options.disabledErrors;
+            if ( typeof errors === 'function' ) {
+                errors = errors( event, this );
+            }
+            if ( !isPojo( errors ) ) {
+                throw new UiFormPluginFieldControlException( 'The disabledErrors option must resolve to a plain Object' );
+            }
+            this.context.plugins.run( 'showFieldsErrors', [ errors, null, this ] );
+        }
+    }
+
+    /**
+     * Field state method
+     * @param {HTMLElement} element - Input element
+     * @param {string} state - Field state name
+     * @param {string} method - State method
+     * @return {HTMLElement} - State host
+     */
+    #field_state( element, state, method = 'set' ) {
+        const host = this.#get_host( element, 'input' );
+        const state_name = 'field.' + state;
+        if ( this.#states.has( state_name ) ) this.#states[ method ]( state_name, host );
+        return host;
+    }
+
+    /**
+     * Set field state
+     * @param {HTMLElement} element - Input element
+     * @param {string} state - Field state name
+     * @return {HTMLElement} - State host
+     */
+    fieldSetState( element, state ) {
+        return this.#field_state( element, state );
+    }
+
+    /**
+     * Unset field state
+     * @param {HTMLElement} element - Input element
+     * @param {string} state - Field state name
+     * @return {HTMLElement} - State host
+     */
+    fieldUnsetState( element, state ) {
+        return this.#field_state( element, state, 'unset' );
+    }
+
+    /**
+     * Field is state
+     * @param {HTMLElement} element - Input element
+     * @param {string} state - Field state name only
+     * @return {null|boolean} - Null if state does not exist
+     */
+    fieldIsState( element, state ) {
+        const host = this.#get_host( element, 'input' );
+        const state_name = 'field.' + state;
+        if ( this.#states.has( state_name ) ) return this.#states.is( state_name, host );
+        return null;
+    }
+
+    /**
+     * Run field validation
+     * @param {Event} event - Input event
+     * @param {HTMLElement} element - Input element
+     * @return {void}
+     */
+    #field_validation( event, element ) {
+        const options = this.context.config.get( 'fields.validate' );
+
+        // Skip validation
+        if ( options.skip ) return;
+
+        // Check for validation events
+        const events = Object.keys( options.eventReporting );
+        if ( events.includes( event.type ) ) {
+            this.fieldIsValid( element, options.eventReporting[ event.type ] );
+        }
+    }
+
+    /**
+     * Field is valid
+     * @param {HTMLElement} field - Input element
+     * @param {undefined|null|'state'|'error'|boolean} report - Report level
+     * @return {boolean} - True if field is valid
+     */
+    fieldIsValid( field, report ) {
+        const options = this.context.config.get( 'fields.validate' );
+
+        // Skip validation
+        if ( options.skip ) return true;
+
+        // Pure html5 validation
+        if ( options.pureHtml5 ) {
+
+            // Check if we have just validated
+            const host = this.#get_host( field );
+            const state = 'field.was.validated';
+
+            // Prevent reporting if we are revalidating,
+            // this prevents an unwanted focus loop on the input if it is invalid
+            if ( this.#states.is( state, host ) ) {
+                report = false;
+                this.#states.unset( state, host );
+            } else {
+                this.#states.set( state, host );
+            }
+
+            // Validate with default html5
+            const check = report ? 'reportValidity' : 'checkValidity';
+            if ( !field[ check ]() ) {
+                if ( this.debug ) this.debug.log( this.constructor.name + '::fieldIsValid Field data invalid using:', check );
+                return false;
+            }
+            return true;
+        }
+
+        // Plugin validation
+        const results = this.context.plugins.run( 'validateField', [ field, report ] );
+        let is_valid = true;
+        const reasons = [];
+        const entries = Object.entries( results );
+        for ( let i = 0; i < entries.length; i++ ) {
+            const [ plugin, result ] = entries[ i ];
+            if ( result === false ) {
+                is_valid = false;
+                reasons.push( plugin );
+            }
+        }
+
+        // Notify reasons
+        if ( this.debug && !is_valid ) {
+            this.debug.log( this.constructor.name + '::fieldIsValid Field invalid, reasons:', reasons );
+        }
+        return is_valid;
     }
 
     /**
@@ -653,7 +865,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
      */
     showFieldErrors( field, errors, onlyState = null ) {
         if ( typeof field !== 'string' || !field.length ) {
-            throw new UiFormPluginFieldControlException( 'Argument field must be a non mepty string' );
+            throw new UiFormPluginFieldControlException( 'Argument field must be a non empty string' );
         }
 
         // Enforce errors as Array
@@ -696,13 +908,13 @@ export class UiFormPluginFieldControl extends UiPlugin {
                             this.debug.error( this.constructor.name + '::showFieldErrors Could not find error output for:', input );
                         }
                     } else if ( this.debug ) {
-                        this.debug.warn( this.constructor.name + '::showFieldErrors Skipped in favor of first only', input );
+                        this.debug.warn( this.constructor.name + '::showFieldErrors Skipped in favor of first only:', input );
                     }
                 } else if ( this.debug ) {
-                    this.debug.warn( this.constructor.name + '::showFieldErrors Only state for', input );
+                    this.debug.warn( this.constructor.name + '::showFieldErrors Only state for:', input );
                 }
             } else if ( this.debug ) {
-                this.debug.error( this.constructor.name + '::showFieldErrors Could not find state host for', input );
+                this.debug.error( this.constructor.name + '::showFieldErrors Could not find state host for:', input );
             }
 
             // Dispatch as field event
