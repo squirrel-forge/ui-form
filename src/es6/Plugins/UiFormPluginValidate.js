@@ -62,7 +62,7 @@ export class UiFormPluginValidate extends UiPlugin {
                 // @type {boolean}
                 clearOnResetSoft : false,
 
-                // Validator module class, overrides html5 validation
+                // Validator factory function
                 // @type {Function}
                 validator : null,
             },
@@ -243,5 +243,14 @@ export class UiFormPluginValidate extends UiPlugin {
             }
         }
         return valid;
+    }
+
+    /**
+     * Get last errors
+     * @public
+     * @return {null|Object} - Errors object
+     */
+    lastErrors() {
+        return this.#validator.errors();
     }
 }
