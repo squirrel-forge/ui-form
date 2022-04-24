@@ -111,7 +111,7 @@ export class UiFormComponent extends UiComponent {
 
             // Pure HTML5 validation only, no plugins will run
             // @type {boolean}
-            validatePureHTML5 : false,
+            validatePureHtml5 : false,
 
             // Validation report level
             // @type {boolean}
@@ -335,7 +335,7 @@ export class UiFormComponent extends UiComponent {
         if ( this.config.get( 'skipValidate' ) ) return true;
 
         // Pure html5 validation
-        if ( this.config.get( 'validatePureHTML5' ) ) {
+        if ( this.config.get( 'validatePureHtml5' ) ) {
             const check = report ? 'reportValidity' : 'checkValidity';
             if ( !this.dom[ check ]() ) {
                 if ( this.debug ) this.debug.log( this.constructor.name + '::isValid Form data invalid using:', check );
