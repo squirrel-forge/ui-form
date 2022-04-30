@@ -97,9 +97,9 @@ export class UiFormComponent extends UiComponent {
          */
         const defaults = {
 
-            // By default async is disabled
+            // Run in async mode, default true
             // @type {boolean}
-            async : false,
+            async : true,
 
             // AsyncRequest default options see @squirrel-forge/ui-util for details
             // @type {Object}
