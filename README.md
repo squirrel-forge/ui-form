@@ -17,7 +17,7 @@ import { Class, function } from '@squirrel-forge/ui-form';
 The documentation is also included in the package.
 
 ### Table of contents
-Package contents listing by language and namespace.
+Package contents listing by namespace.
 
  - [Form](docs/Form.md)
    - [FormValues](docs/Form.md#FormValues)
