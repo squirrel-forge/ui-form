@@ -87,15 +87,18 @@ const extendConfig = {
         states : {
             'field.was.validated' : { classOn : 'input--was-validated' },
             'field.disabled' : { classOn : 'input--disabled' },
-            'field.focus' : { classOn : 'input--focus', unsets : [ 'field.blur', 'field.error' ] },
-            'field.blur' : { classOn : 'input--blur', unsets : [ 'field.focus', 'field.error.visible' ] },
+            'field.focus' : { classOn : 'input--focus', unsets : [ 'field.blur' ] },
+            'field.blur' : { classOn : 'input--blur', unsets : [ 'field.focus' ] },
             'field.filled' : { classOn : 'input--filled', unsets : [ 'field.empty' ] },
             'field.empty' : { classOn : 'input--empty', unsets : [ 'field.filled' ] },
             'field.input' : { classOn : 'input--input', autoUnset : true },
-            'field.change' : { classOn : 'input--change', autoUnset : true, unsets : [ 'field.error.visible' ] },
+            'field.change' : { classOn : 'input--change', autoUnset : true },
             'field.error' : { classOn : 'input--error' },
-            'field.error.visible' : { classOn : 'input--error-visible', callbackOff : ( name, element ) => { /* Clears error host */ } },
+            'field.error.visible' : { classOn : 'input--error-visible' },
             'submit.disabled' : { classOn : 'button--disabled' },
+            'group.disabled' : { classOn : 'input-group--disabled' },
+            'group.error' : { classOn : 'input-group--error' },
+            'group.error.visible' : { classOn : 'input-group--error-visible' },
         },
 
         // Use values states, filled, empty, input and change
@@ -125,9 +128,13 @@ const extendConfig = {
             // @type {boolean}
             onlyState : false,
 
-            // Grouped/array inputs show error on first input only
+            // Prefer group error instead of input error
             // @type {boolean}
-            showOnFirstOnly : true,
+            preferGroupOutput : true,
+
+            // For grouped/array inputs show error on position input only
+            // @type {null|number|'first'|'last'}
+            showOnPositionOnly : null,
 
             // Render only first field error
             // @type {boolean}
@@ -140,6 +147,13 @@ const extendConfig = {
             // Error render custom callback
             // @type {Function}
             renderCallback : null,
+
+            // Clear field error on event
+            // @type {Object}
+            clearOnEvents : {
+                state : [ 'focus' ],
+                error : [ 'blur', 'change' ],
+            },
 
             // Clear errors on form reset
             // @type {boolean}

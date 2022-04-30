@@ -18,6 +18,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Plugin name getter
+     * @public
      * @static
      * @return {string} - Plugin name
      */
@@ -110,24 +111,18 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 states : {
                     'field.was.validated' : { classOn : 'input--was-validated' },
                     'field.disabled' : { classOn : 'input--disabled' },
-                    'field.focus' : { classOn : 'input--focus', unsets : [ 'field.blur', 'field.error' ] },
-                    'field.blur' : { classOn : 'input--blur', unsets : [ 'field.focus', 'field.error.visible' ] },
+                    'field.focus' : { classOn : 'input--focus', unsets : [ 'field.blur' ] },
+                    'field.blur' : { classOn : 'input--blur', unsets : [ 'field.focus' ] },
                     'field.filled' : { classOn : 'input--filled', unsets : [ 'field.empty' ] },
                     'field.empty' : { classOn : 'input--empty', unsets : [ 'field.filled' ] },
                     'field.input' : { classOn : 'input--input', autoUnset : true },
-                    'field.change' : { classOn : 'input--change', autoUnset : true, unsets : [ 'field.error.visible' ] },
+                    'field.change' : { classOn : 'input--change', autoUnset : true },
                     'field.error' : { classOn : 'input--error' },
-                    'field.error.visible' : { classOn : 'input--error-visible', callbackOff : ( name, element ) => {
-                        const host = this.#get_host( element, 'input', 'error' );
-                        if ( host ) host.innerHTML = '';
-                    } },
+                    'field.error.visible' : { classOn : 'input--error-visible' },
                     'submit.disabled' : { classOn : 'button--disabled' },
-
-                    /* TODO: Group states, for grouped radios etc
                     'group.disabled' : { classOn : 'input-group--disabled' },
                     'group.error' : { classOn : 'input-group--error' },
                     'group.error.visible' : { classOn : 'input-group--error-visible' },
-                    */
                 },
 
                 // Use values states, filled, empty, input and change
@@ -135,7 +130,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 valueStates : true,
 
                 // Input events to bind
-                // @type {string}
+                // @type {Array<string>}
                 bindEvents : [ 'focus', 'blur', 'input', 'change' ],
 
                 // Event binding rules
@@ -157,9 +152,13 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     // @type {boolean}
                     onlyState : false,
 
-                    // Grouped/array inputs show error on first input only
+                    // Prefer group error instead of input error
                     // @type {boolean}
-                    showOnFirstOnly : true,
+                    preferGroupOutput : true,
+
+                    // For grouped/array inputs show error on position input only
+                    // @type {null|number|'first'|'last'}
+                    showOnPositionOnly : null,
 
                     // Render only first field error
                     // @type {boolean}
@@ -172,6 +171,15 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     // Error render custom callback
                     // @type {Function}
                     renderCallback : null,
+
+                    // Clear field error on event
+                    // @type {Object}
+                    clearOnEvents : {
+                        state : [ 'focus' ],
+                        error : [ 'blur', 'change' ],
+                    },
+
+                    // TODO: Prevent clear if not sendable/locked/completed?
 
                     // Clear errors on form reset
                     // @type {boolean}
@@ -253,6 +261,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Setup wrapper and handlers for disabled submit error support
+     * @private
      * @return {void}
      */
     #setup_submit_disable_support() {
@@ -317,6 +326,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Input events
+     * @private
      * @param {Event} event - Input events
      * @param {HTMLElement} element - Input element
      * @return {void}
@@ -324,12 +334,14 @@ export class UiFormPluginFieldControl extends UiPlugin {
     #event_input( event, element ) {
         const host = this.fieldSetState( element, event.type );
         this.#field_value_state( event, element, host );
+        this.#field_clear_error( event, element );
         this.#field_validation( event, element );
         if ( this.debug ) this.debug.log( this.constructor.name + '::event_input', event.type, element, host );
     }
 
     /**
      * Submit disabled event
+     * @private
      * @param {Event} event - Click event
      * @return {void}
      */
@@ -348,7 +360,33 @@ export class UiFormPluginFieldControl extends UiPlugin {
     }
 
     /**
+     * Field clear error on event
+     * @private
+     * @param {Event} event - Input event
+     * @param {HTMLElement} element - Input element
+     * @return {void}
+     */
+    #field_clear_error( event, element ) {
+        const events = this.context.config.get( 'fields.errors.clearOnEvents' );
+        if ( events ) {
+            const error = events.state && events.state.includes( event.type );
+            const visibility = events.error && events.error.includes( event.type );
+            if ( error || visibility ) {
+                let inputs = [ element ];
+                const group = this.#get_host( element, 'group' );
+                if ( group && group !== element ) {
+                    inputs = group.querySelectorAll( this.context.config.get( 'dom.fields' ) );
+                }
+                this.#loop_inputs( inputs, ( input ) => {
+                    this.clearFieldErrors( input, error, visibility );
+                }, true );
+            }
+        }
+    }
+
+    /**
      * Field state method
+     * @private
      * @param {HTMLElement} element - Input element
      * @param {string} state - Field state name
      * @param {string} method - State method
@@ -363,6 +401,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Set field state
+     * @public
      * @param {HTMLElement} element - Input element
      * @param {string} state - Field state name
      * @return {HTMLElement} - State host
@@ -373,6 +412,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Unset field state
+     * @public
      * @param {HTMLElement} element - Input element
      * @param {string} state - Field state name
      * @return {HTMLElement} - State host
@@ -383,6 +423,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Field is state
+     * @public
      * @param {HTMLElement} element - Input element
      * @param {string} state - Field state name only
      * @return {null|boolean} - Null if state does not exist
@@ -396,6 +437,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Run field validation
+     * @private
      * @param {Event} event - Input event
      * @param {HTMLElement} element - Input element
      * @return {void}
@@ -415,6 +457,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Field is valid
+     * @public
      * @param {HTMLElement} field - Input element
      * @param {undefined|null|'state'|'error'|boolean} report - Report level
      * @return {boolean} - True if field is valid
@@ -472,6 +515,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Set value type by event type
+     * @private
      * @param {Event} event - Event
      * @param {HTMLElement} input - Input element
      * @param {HTMLElement} host - State host element
@@ -499,6 +543,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Set submit disabled state by event type
+     * @private
      * @param {Event} event - Event
      * @return {void}
      */
@@ -571,6 +616,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Bind form input events
+     * @private
      * @param {Object|UiFormPluginFieldControl} context - Plugin object
      * @return {void}
      */
@@ -594,6 +640,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Set submit disabled
+     * @public
      * @param {boolean} state - False to enable all submits
      * @return {void}
      */
@@ -613,13 +660,14 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Loop over form inputs
-     * @param {Object|UiFormPluginFieldControl} context - PLugin object
+     * @private
+     * @param {Array|NodeList|Object|UiFormPluginFieldControl} context - PLugin object or list of inputs
      * @param {Function} callback - Element callback
      * @param {boolean} hidden - Use hidden fields, default: false
      * @return {void}
      */
     #loop_inputs( context, callback, hidden = false ) {
-        const elements = context.getDomRefs( 'fields' );
+        const elements = context.getDomRefs ? context.getDomRefs( 'fields' ) : context;
         if ( elements && elements.length ) {
             for ( let i = 0; i < elements.length; i++ ) {
                 const element = elements[ i ];
@@ -640,6 +688,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Validate errors object
+     * @private
      * @param {Object} errors - Errors object
      * @return {void}
      */
@@ -651,6 +700,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Clear fields errors
+     * @public
      * @param {boolean} error - Clear error state
      * @param {boolean} visibility - Clear error
      * @param {null|Array} only - Limit to given input names
@@ -667,6 +717,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Clear field errors
+     * @public
      * @param {HTMLElement} input - Input element
      * @param {boolean} error - Clear error state
      * @param {boolean} visibility - Clear error
@@ -683,11 +734,13 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 if ( group ) this.#states.unset( 'group.error', group );
             }
             if ( visibility ) {
-                const output = this.#get_host( input, 'input', 'error' );
-                if ( output ) {
-                    this.#states.unset( 'field.error.visible', host );
-                    output.innerHTML = '';
-                } else if ( this.debug ) {
+                this.#states.unset( 'field.error.visible', host );
+                if ( group ) this.#states.unset( 'group.error.visible', group );
+                const host_output = this.#get_host( input, 'input', 'error' );
+                const group_output = this.#get_host( input, 'group', 'error' );
+                if ( host_output ) host_output.innerHTML = '';
+                if ( group && group_output ) group_output.innerHTML = '';
+                if ( !host_output && !group_output && this.debug ) {
                     this.debug.error( this.constructor.name + '::clearFieldErrors Could not find error output for:', input );
                 }
             }
@@ -698,6 +751,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Remap errors object
+     * @public
      * @param {Object} errors - Errors object
      * @param {Object} options - Field control options
      * @return {void}
@@ -740,6 +794,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Show fields errors
+     * @public
      * @param {Object} errors - Errors object
      * @param {null|boolean} onlyState - Only set state
      * @return {void}
@@ -858,6 +913,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Show field errors
+     * @public
      * @param {string} field - Field name
      * @param {Object} errors - Errors object
      * @param {null|boolean} onlyState - Only set state
@@ -888,6 +944,24 @@ export class UiFormPluginFieldControl extends UiPlugin {
             return;
         }
 
+        // Get show position option
+        let show_pos = options.showOnPositionOnly;
+        const named_pos = { first : 1, last : inputs.length };
+        switch ( typeof show_pos ) {
+        case 'string' :
+            show_pos = named_pos[ show_pos ] ? named_pos[ show_pos ] : null;
+            break;
+        case 'number' :
+            if ( show_pos > named_pos.last ) {
+                show_pos = named_pos.last;
+            } else if ( show_pos < 1 ) {
+                show_pos = 1;
+            }
+            break;
+        default :
+            show_pos = 0;
+        }
+
         // Set errors for inputs
         for ( let i = 0; i < inputs.length; i++ ) {
             const input = inputs[ i ];
@@ -898,17 +972,23 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 this.#states.set( 'field.error', host );
                 if ( group ) this.#states.set( 'group.error', group );
                 if ( !onlyState ) {
-                    if ( !options.showOnFirstOnly || options.showOnFirstOnly && i < 1  ) {
-                        const output = this.#get_host( input, 'input', 'error' );
-                        if ( output ) {
-                            if ( !this.#render_errors( errors, output, options ) ) {
+                    if ( !show_pos || i === show_pos - 1 ) {
+                        const host_output = this.#get_host( input, 'input', 'error' );
+                        const group_output = this.#get_host( input, 'group', 'error' );
+                        if ( options.preferGroupOutput && group && group_output ) {
+                            if ( !this.#render_errors( errors, group_output, options ) ) {
+                                this.#states.set( 'group.error.visible', group );
+                            }
+                        } else if ( host_output ) {
+                            if ( !this.#render_errors( errors, host_output, options ) ) {
                                 this.#states.set( 'field.error.visible', host );
                             }
                         } else if ( this.debug ) {
                             this.debug.error( this.constructor.name + '::showFieldErrors Could not find error output for:', input );
                         }
+                        if ( show_pos ) break;
                     } else if ( this.debug ) {
-                        this.debug.warn( this.constructor.name + '::showFieldErrors Skipped in favor of first only:', input );
+                        this.debug.warn( this.constructor.name + '::showFieldErrors Skipped ' + ( i + 1 ) + '/' + show_pos + ':', input );
                     }
                 } else if ( this.debug ) {
                     this.debug.warn( this.constructor.name + '::showFieldErrors Only state for:', input );
@@ -924,6 +1004,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
     /**
      * Render field errors
+     * @private
      * @param {Object} errors - Errors object
      * @param {HTMLElement} output - Output element
      * @param {Object} options - Field control options

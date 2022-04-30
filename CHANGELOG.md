@@ -6,6 +6,8 @@
  - Added submit onclick disabled error messages support.
  - Added *UiFormPluginValidate* and *Html5Validator* classes.
  - Added *FormValues.fieldname()* and *UiFormPluginValues.getFieldName()* methods.
+ - Added *input-group* support for error states and display.
+ - Fixed *input.error* and *input.error.visible* state and error clearing.
  - Updated documentation and dependencies.
 
 ## 0.6.0
