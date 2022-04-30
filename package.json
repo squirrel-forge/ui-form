@@ -30,9 +30,9 @@
   },
   "homepage": "https://github.com/squirrel-forge/ui-form#readme",
   "devDependencies": {
-    "@squirrel-forge/simple-webpack": "^0.9.1"
+    "@squirrel-forge/simple-webpack": "^0.9.x"
   },
   "dependencies": {
-    "@squirrel-forge/ui-core": "^0.8.8"
+    "@squirrel-forge/ui-core": "^0.8.x"
   }
 }
