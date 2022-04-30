@@ -610,6 +610,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 const doc = document.querySelector( attr );
                 if ( doc ) return doc;
             }
+            return null;
         }
         return element;
     }
@@ -1011,6 +1012,11 @@ export class UiFormPluginFieldControl extends UiPlugin {
      * @return {boolean} - True if error visible state should not be added
      */
     #render_errors( errors, output, options ) {
+        const not_allowed = [ 'img', 'link', 'input', 'textarea', 'select', 'button', 'br' ];
+        if ( !( output instanceof HTMLElement ) || not_allowed.includes( output.tagName.toLowerCase() ) ) {
+            if ( this.debug ) this.debug.error( this.constructor.name + '::render_errors Invalid error render output:', output );
+            return;
+        }
         let no_show_state = false;
         if ( options.renderCallback ) {
             no_show_state = options.renderCallback( errors, output, options, this );
