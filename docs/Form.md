@@ -61,7 +61,7 @@ const defaults = {
 
     // By default async is disabled
     // @type {boolean}
-    async : false,
+    async : true,
 
     // AsyncRequest default options see @squirrel-forge/ui-util for details
     // @type {Object}
@@ -145,6 +145,33 @@ class UiFormComponent extends UiComponent {
 }
 ```
 For more details check the [UiFormComponent source file](../src/es6/Form/UiFormComponent.js).
+
+#### Using the component
+For details refer to the settings, class overview and code file mentioned above.
+```javascript
+import { UiFormComponent } from '@squirrel-forge/ui-form';
+
+// Will initialize a specific form
+UiFormComponent.make( document.querySelector( '.ui-form' ) );
+
+// Will initialize all forms in the current document
+UiFormComponent.makeAll();
+```
+
+#### Component markup
+Following markup is required for an async form.
+```html
+<form is="ui-form" class="ui-form" action="" method="post" enctype="multipart/form-data"></form>
+```
+Set a JSON config the following way:
+```html
+<form data-config='{"option":{"name":true},"optionName":true}'></form>
+```
+Set individual config options via following attribute syntax:
+```html
+<!-- Will resolve to: option.name & optionName = true -->
+<form data-option-name="true"></form>
+```
 
 ---
 
