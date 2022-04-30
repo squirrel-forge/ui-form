@@ -59,7 +59,7 @@ Component settings might be changed or extended through plugins.
 ```javascript
 const defaults = {
 
-    // By default async is disabled
+    // Run in async mode, default true
     // @type {boolean}
     async : true,
 
