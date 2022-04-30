@@ -1,9 +1,9 @@
 ### @squirrel-forge/ui-form
-> [Back to table of contents](../README.md)
+> [Back to table of contents](../README.md#table-of-contents)
 
 # Documentation
 ### Javascript / Form
-> [Table of contents](../README.md) <[ Form ]> [Plugins](Plugins.md)
+> [Table of contents](../README.md#table-of-contents) <[ Form ]> [Plugins](Plugins.md)
 
 ## Table of contents
  - [FormValues](#FormValues)
@@ -29,7 +29,7 @@ class FormValues {
   inputs( field, errors = true ) {} // Array|NodeList
 }
 ```
-For more details check the [FormValues source file](../../src/es6/Form/FormValues.js).
+For more details check the [FormValues source file](../src/es6/Form/FormValues.js).
 
 ---
 
@@ -47,7 +47,7 @@ class Html5Validator {
   errors() {} // null|Object
 }
 ```
-For more details check the [Html5Validator source file](../../src/es6/Form/Html5Validator.js).
+For more details check the [Html5Validator source file](../src/es6/Form/Html5Validator.js).
 
 ---
 
@@ -144,8 +144,8 @@ class UiFormComponent extends UiComponent {
   reset( soft = false ) {} // void
 }
 ```
-For more details check the [UiFormComponent source file](../../src/es6/Form/UiFormComponent.js).
+For more details check the [UiFormComponent source file](../src/es6/Form/UiFormComponent.js).
 
 ---
 
-> [Table of contents](../README.md) <[ Form ]> [Plugins](Plugins.md)
+> [Table of contents](../README.md#table-of-contents) <[ Form ]> [Plugins](Plugins.md)
