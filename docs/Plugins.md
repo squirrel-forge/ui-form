@@ -30,7 +30,7 @@ const extendConfig = {
 
             // Skip validation code
             // @type {boolean}
-            skip : false,
+            skip : true,
 
             // Pure HTML5 validation only, no plugins will run
             // @type {boolean}
@@ -221,6 +221,67 @@ class UiFormPluginFieldControl extends UiPlugin {
 }
 ```
 For more details check the [UiFormPluginFieldControl source file](../src/es6/Plugins/UiFormPluginFieldControl.js).
+
+#### Fields markup
+The default fields markup, representing the element structure, classes and relationships can be modified using the settings:
+```html
+<label class="input input--(focus|blur|change|filled|empty|required|valid|invalid|error|error-visible|disabled)">
+    <!-- Regular inputs usually have the label before the input -->
+    <strong class="input__label">:label</strong>
+    <!-- The input wrapper contains one actual input -->
+    <span class="input__input">
+        <!-- Regular inputs -->
+        <input type="text" name=":fieldname" />
+        <textarea name=":fieldname"></textarea>
+
+        <!-- Select requires an additional element to style the drop arrow reliably -->
+        <select name=":fieldname">
+            <option value=":value">:label</option>
+        </select>
+        <span class="input__pseudo"></span>
+
+        <!-- For checkboxes and radio buttons we use an additional element for styling reliably -->
+        <input type="checkbox" name=":fieldname" />
+        <span class="input__pseudo"></span>
+    </span>
+    <!-- For checkboxes and radio buttons you might want to place the label after the input -->
+    <strong class="input__label">:label</strong>
+    <!-- To display an error we require a wrapper that can be used for the messge output -->
+    <em class="input__error"></em>
+</label>
+```
+
+If you wish to add an error output for something that is not an input, use following markup to add a unused/hidden input:
+```html
+<label class="input input--hidden input--disabled">
+    <span class="input__input"><input type="hidden" name="general" disabled /></span>
+    <em class="input__error"></em>
+</label>
+```
+Use the *showFieldsErrors* or *showFieldErrors* methods to display customized error messages.
+
+If you prefer a minimal setup, fields can define a personal error selector if there is no regular or group error output found,
+this will select the first matching element within the form. They also do not require the **label** *.input* wrapper as a state host,
+as the input can be the state host itself.
+```html
+<form>
+    <input data-error-selector=".select-something .within-the-form" />
+    <div class="select-something">
+        <em class="within-the-form"></em>
+    </div>
+</form>
+```
+
+#### Field groups
+To group inputs, allowing them to use one parent error output, use following markup:
+```html
+<fieldset class="input-group input-group--(error|error-visible)">
+    <!-- multiple field inputs, radio buttons, checkboxes -->
+    <em class="input-group__error"></em>
+</fieldset>
+```
+States will still be set on the individual inputs, but the error display will use the group display and
+therefore the inputs do not require individual outputs anymore, this can be tuned with the *fields.errors* options *preferGroupOutput* and *showOnPositionOnly*.
 
 ---
 
@@ -438,6 +499,10 @@ Component settings are changed/extended as following.
 ```javascript
 const extendConfig = {
 
+    // Skip validation code, changes the default to: false
+    // @type {boolean}
+    skipValidate : false,
+
     // Extend validation options
     // @type {Object}
     validate : {
@@ -473,6 +538,10 @@ const extendConfig = {
         // Validation options
         // @type {Object}
         validate : {
+
+            // Skip validation code, changes the default to: false
+            // @type {boolean}
+            skip : false,
 
             // Error reporting level for each event
             // @type {Object}

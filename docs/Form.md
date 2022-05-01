@@ -69,7 +69,7 @@ const defaults = {
 
     // Skip validation code
     // @type {boolean}
-    skipValidate : false,
+    skipValidate : true,
 
     // Pure HTML5 validation only, no plugins will run
     // @type {boolean}
