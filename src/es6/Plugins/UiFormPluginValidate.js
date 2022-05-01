@@ -242,7 +242,13 @@ export class UiFormPluginValidate extends UiPlugin {
         // Reporting
         if ( report ) {
             const event_state = valid ? 'valid' : 'invalid';
-            this.context.plugins.run( 'fieldSetState', [ input, event_state ] );
+            let inputs = [ input ];
+            if ( input.type === 'radio' ) {
+                inputs = this.context.dom.querySelectorAll( '[name="' + input.getAttribute( 'name' ) + '"]' );
+            }
+            for ( let i = 0; i < inputs.length; i++ ) {
+                this.context.plugins.run( 'fieldSetState', [ inputs[ i ], event_state ] );
+            }
             this.context.dispatchEvent( 'field.' + event_state, data );
 
             // Use fields error display and state
