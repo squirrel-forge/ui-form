@@ -9,6 +9,8 @@
  - Added *input-group* support for error states and display.
  - Fixed *input.error* and *input.error.visible* state and error clearing.
  - Changed *UiFormComponent* config option *async* default value to *true*.
+ - Fixed *HTML5Validator.validate_field* handling for radio button groups.
+ - Fixed *UiFormPluginValidate* field states for radio groups.
  - Updated documentation and dependencies.
 
 ## 0.6.0
