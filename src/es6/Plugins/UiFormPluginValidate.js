@@ -46,6 +46,10 @@ export class UiFormPluginValidate extends UiPlugin {
         // Extend default config
         this.extendConfig = {
 
+            // Skip validation code, changes the default to: false
+            // @type {boolean}
+            skipValidate : false,
+
             // Extend validation options
             // @type {Object}
             validate : {
@@ -81,6 +85,10 @@ export class UiFormPluginValidate extends UiPlugin {
                 // Validation options
                 // @type {Object}
                 validate : {
+
+                    // Skip validation code, changes the default to: false
+                    // @type {boolean}
+                    skip : false,
 
                     // Error reporting level for each event
                     // @type {Object}

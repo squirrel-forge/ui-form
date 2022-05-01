@@ -107,7 +107,7 @@ export class UiFormComponent extends UiComponent {
 
             // Skip validation code
             // @type {boolean}
-            skipValidate : false,
+            skipValidate : true,
 
             // Pure HTML5 validation only, no plugins will run
             // @type {boolean}
@@ -331,9 +331,6 @@ export class UiFormComponent extends UiComponent {
      */
     isValid( report = false ) {
 
-        // Skip validation
-        if ( this.config.get( 'skipValidate' ) ) return true;
-
         // Pure html5 validation
         if ( this.config.get( 'validatePureHtml5' ) ) {
             const check = report ? 'reportValidity' : 'checkValidity';
@@ -343,6 +340,9 @@ export class UiFormComponent extends UiComponent {
             }
             return true;
         }
+
+        // Skip validation
+        if ( this.config.get( 'skipValidate' ) ) return true;
 
         // Plugin validation
         const results = this.plugins.run( 'validateForm', [ report ] );
