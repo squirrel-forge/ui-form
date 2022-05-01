@@ -109,14 +109,29 @@ export class Html5Validator {
      * @return {void}
      */
     #validate_field( field, name, status ) {
-        if ( !field.checkValidity() ) {
+
+        // Validate the field and get the default message
+        let valid = field.checkValidity(), message = field.validationMessage;
+
+        // Radio groups must be validated as a group, or one might be valid while all others are not
+        if ( field.type === 'radio' ) {
+            const group = this.#form.querySelectorAll( '[name="' + field.getAttribute( 'name' ) + '"]' );
+            message = group[ 0 ].validationMessage;
+            valid = false;
+            for ( let i = 0; i < group.length; i++ ) {
+                if ( group[ i ].checkValidity() ) {
+                    valid = true;
+                    break;
+                }
+            }
+        }
+        if ( !valid ) {
             status.valid = false;
 
             // Allow multiple errors
             if ( !status.errors[ name ] ) status.errors[ name ] = [];
 
             // Get error message
-            let message = field.validationMessage;
             if ( field.hasAttribute( this.errorAttribute ) ) {
                 message = field.getAttribute( this.errorAttribute );
             }
