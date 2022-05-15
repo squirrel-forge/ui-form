@@ -1,8 +1,22 @@
 /**
  * Requires
  */
-import { UiComponent } from '@squirrel-forge/ui-core';
-import { AsyncRequest, Exception, cloneObject, appendHTML, bindNodeList } from '@squirrel-forge/ui-util';
+import {
+    UiComponent
+} from '@squirrel-forge/ui-core';
+
+// Import for local dev
+// } from '../../../../ui-core';
+import {
+    AsyncRequest,
+    Exception,
+    cloneObject,
+    appendHTML,
+    bindNodeList
+} from '@squirrel-forge/ui-util';
+
+// Import for local dev
+// } from '../../../../ui-util';
 
 /**
  * Ui form component exception
@@ -14,42 +28,6 @@ class UiFormComponentException extends Exception {}
  * @class
  */
 export class UiFormComponent extends UiComponent {
-
-    /**
-     * Make ui-form component
-     * @param {HTMLFormElement} form - Form
-     * @param {null|Object} settings - Config object
-     * @param {Array} plugins - Plugins array
-     * @param {null|false|console|Object} debug - Debug object
-     * @return {UiFormComponent} - Component object
-     */
-    static make( form, settings = null, plugins = [], debug = null ) {
-        if ( debug === null ) {
-            const value = form.getAttribute( 'debug' ) || form.getAttribute( 'data-debug' );
-            if ( UiFormComponent.configValueFromAttr( value ) === true ) {
-                debug = console;
-            }
-        } else if ( debug === true ) {
-            debug = console;
-        }
-        return new UiFormComponent( form, settings, plugins, [], true, debug );
-    }
-
-    /**
-     * Initialize all ui-form elements in context
-     * @param {Array} plugins - Plugins array
-     * @param {null|console|Object} debug - Debug object
-     * @param {document|HTMLElement} context - Context to initialize
-     * @return {Array<UiFormComponent>} - Initialized components
-     */
-    static makeAll( plugins = [], debug = null, context = document ) {
-        const result = [];
-        const forms = context.querySelectorAll( UiFormComponent.selector );
-        for ( let i = 0; i < forms.length; i++ ) {
-            result.push( this.make( forms[ i ], null, plugins, debug ) );
-        }
-        return result;
-    }
 
     /**
      * Element selector getter
@@ -81,12 +59,25 @@ export class UiFormComponent extends UiComponent {
      * @constructor
      * @param {HTMLFormElement} element - Form element
      * @param {null|Object} settings - Config object
-     * @param {Array<Function|Array<Function,*>>} plugins - Plugins to load
+     * @param {Object} defaults - Default config
      * @param {Array<Object>} extend - Extend default config
-     * @param {boolean} init - Run init method
+     * @param {Object} states - States definition
+     * @param {Array<Function|Array<Function,*>>} plugins - Plugins to load
+     * @param {null|UiComponent} parent - Parent object
      * @param {null|console|Object} debug - Debug object
+     * @param {boolean} init - Run init method
      */
-    constructor( element, settings = null, plugins = [], extend = [], init = true, debug = null ) {
+    constructor(
+        element,
+        settings = null,
+        defaults = null,
+        extend = null,
+        states = null,
+        plugins = null,
+        parent = null,
+        debug = null,
+        init = true
+    ) {
 
         // Check element type
         if ( !( element instanceof HTMLFormElement ) ) throw new UiFormComponentException( 'Argument element must be a HTMLFormElement' );
@@ -95,7 +86,7 @@ export class UiFormComponent extends UiComponent {
          * Default config
          * @type {Object}
          */
-        const defaults = {
+        defaults = defaults || {
 
             // Run in async mode, default true
             // @type {boolean}
@@ -170,7 +161,7 @@ export class UiFormComponent extends UiComponent {
          * Default states
          * @type {Object}
          */
-        const states = {
+        states = states || {
             initialized : {
                 classOn : 'ui-form--initialized',
                 unsets : [ 'sending', 'success', 'error', 'complete' ],
@@ -193,7 +184,7 @@ export class UiFormComponent extends UiComponent {
         };
 
         // Initialize parent
-        super( element, settings, defaults, extend, states, plugins, init, debug );
+        super( element, settings, defaults, extend, states, plugins, parent, debug, init );
     }
 
     /**
