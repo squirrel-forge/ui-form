@@ -130,8 +130,6 @@ const defaults = {
 ```javascript
 // Event names: initialized, progress, sending, submit, before.submit, async.modify, error, success, complete, reset
 class UiFormComponent extends UiComponent {
-  static make( form, settings = null, plugins = [], debug = null ) {} // UiFormComponent
-  static makeAll( plugins = [], debug = null, context = document ) {} // UiFormComponent[]
   static selector : String
   constructor( element, settings = null, plugins = [], extend = [], init = true, debug = null ) {}
   valid : Boolean
