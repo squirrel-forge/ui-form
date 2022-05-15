@@ -1,8 +1,22 @@
 /**
  * Requires
  */
-import { UiPlugin } from '@squirrel-forge/ui-core';
-import { Exception, AsyncRequest, cloneObject, mergeObject, isPojo } from '@squirrel-forge/ui-util';
+import {
+    UiPlugin
+} from '@squirrel-forge/ui-core';
+
+// Import for local dev
+// } from '../../../../ui-core';
+import {
+    Exception,
+    AsyncRequest,
+    cloneObject,
+    mergeObject,
+    isPojo
+} from '@squirrel-forge/ui-util';
+
+// Import for local dev
+// } from '../../../../ui-util';
 
 /**
  * Ui form plugin prefetch exception
