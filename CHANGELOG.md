@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0
+ - Updated dependencies.
+ - Updated documentation.
+ - Removed *UiFormComponent.make()* and *UiFormComponent.makeAll()* in favor of new abstracts on *UiComponent*.
+ - Updated *UiFormComponent* constructor.
+
 ## 0.7.0
  - Cleaned up the form validation logic, includes pure html5 option and plugins.
  - Added field validation support including pure html5 option and plugins.
