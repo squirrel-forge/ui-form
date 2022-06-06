@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.0
+ - Form component and fields plugin *skipValidate* and *validate.skip* now also affect the pure html validate options.
+ - Improved JSON response plugin error handling and added message property consumption as output error.
+ - Changed JSON response plugin unknown option.
+ - Remove recaptcha plugin execute callback.
+ - Add *recaptcha.load* and *recaptcha.token* events to recaptcha plugin
+ - Improve recaptcha plugin internal submit button fetching.
+ - *UiFormComponent* only add submit value if available.
+ - Updated dependencies.
+ - Updated documentation.
+
 ## 0.8.0
  - Updated dependencies.
  - Updated documentation.
