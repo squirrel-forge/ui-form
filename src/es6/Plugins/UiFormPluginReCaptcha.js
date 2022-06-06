@@ -74,10 +74,6 @@ export class UiFormPluginReCaptcha extends UiPlugin {
                 // @type {string}
                 setTokenName : 'grecaptchaSetToken',
 
-                // Execute callback name
-                // @type {string}
-                executeName : 'grecaptchaExecute',
-
                 // Append a recaptcha host element if none is defined
                 // @type {(null|'form'|'body'|HTMLElement)}
                 appendHost : 'form',
@@ -184,6 +180,24 @@ export class UiFormPluginReCaptcha extends UiPlugin {
     }
 
     /**
+     * Get marked or first submit
+     * @private
+     * @return {null|HTMLButtonElement} - Submit button
+     */
+    #get_submit() {
+        const submit = this.context.getDomRefs( 'recaptchaSubmit', false );
+        if ( submit ) return submit;
+        const fake = this.context.getDomRefs( 'fake', false );
+        const refs = this.context.getDomRefs( 'submit' );
+        for ( let i = 0; i < refs.length; i++ ) {
+            if ( refs[ i ] !== fake ) {
+                return refs[ i ];
+            }
+        }
+        return null;
+    }
+
+    /**
      * Callback for recaptcha script load
      * @private
      * @param {Object} options - Plugin options
@@ -191,14 +205,19 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      */
     #callback_loader( options ) {
         if ( window.grecaptcha ) {
-
-            const submit = this.context.getDomRefs( 'recaptchaSubmit', false );
+            const submit = this.#get_submit();
             if ( !submit ) {
                 throw new UiFormPluginReCaptchaException( 'Requires a ReCaptcha marked submit button' );
             }
 
+            // Fire interceptable load event
+            if ( !this.context.dispatch( 'recaptcha.load', { plugin : this }, true, true ) ) {
+                if ( this.debug ) this.debug.log( this.constructor.name + '::callback_loader Cancelled by recaptcha.load event' );
+                return;
+            }
+
             // Should not cause submit if in async mode, but allow setToken callback to submit when ready
-            if ( this.context.config.exposed.async ) {
+            if ( this.context.config.get( 'async' ) ) {
                 submit.type = 'button';
             }
 
@@ -217,14 +236,11 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      * Callback for recaptcha set token
      * @private
      * @param {string} token - Token to verify
-     * @param {Object} options - Plugin options
      * @return {void}
      */
-    #callback_setToken( token, options ) {
+    #callback_setToken( token ) {
         if ( this.debug ) this.debug.log( this.constructor.name + '::callback_setToken', token );
-        if ( window[ options.executeName ] ) {
-            window[ options.executeName ]( token, this );
-        } else {
+        if ( this.context.dispatch( 'recaptcha.token', { token : token, plugin : this }, true, true ) ) {
             this.context.submit();
         }
     }
@@ -284,9 +300,7 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      * @return {void}
      */
     #bind_submit() {
-
-        // TODO: use regular dom submit references and replace config setting with new selector
-        const submit = this.context.getDomRefs( 'recaptchaSubmit', false );
+        const submit = this.#get_submit();
         if ( !submit ) {
             throw new UiFormPluginReCaptchaException( 'Requires a ReCaptcha marked submit button' );
         }
@@ -305,7 +319,7 @@ export class UiFormPluginReCaptcha extends UiPlugin {
             throw new UiFormPluginReCaptchaException( 'ReCaptcha script already set' );
         }
         const script = document.createElement( 'script' );
-        script.setAttribute( this.context.config.exposed.recaptcha.scriptAttribute, '' );
+        script.setAttribute( options.scriptAttribute, '' );
         script.async = true;
         script.defer = true;
         script.src = options.script;
