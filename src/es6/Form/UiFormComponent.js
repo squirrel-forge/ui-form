@@ -199,7 +199,7 @@ export class UiFormComponent extends UiComponent {
         this.dom.noValidate = true;
 
         // Add fake submit
-        const fake = this.config.exposed.fake;
+        const fake = this.config.get( 'fake' );
         if ( fake ) appendHTML( this.dom, fake );
 
         // Bind events
@@ -277,10 +277,7 @@ export class UiFormComponent extends UiComponent {
         }
 
         // Allow plugins and external handlers to prevent submission
-        this.dispatchEvent( 'before.submit', { event } );
-
-        // Abort submit, default behaviour was prevented
-        if ( event.defaultPrevented ) {
+        if ( !this.dispatchEvent( 'before.submit', { event } ) || event.defaultPrevented ) {
             if ( this.debug ) {
                 this.debug.log( this.constructor.name + '::event_submit default prevented via isValid method or before.submit event' );
             }
@@ -288,7 +285,7 @@ export class UiFormComponent extends UiComponent {
         }
 
         // Prevent actual submit for ajax mode
-        if ( this.config.exposed.async ) {
+        if ( this.config.get( 'async' ) ) {
 
             // Prevent default form submission
             event.preventDefault();
@@ -322,6 +319,9 @@ export class UiFormComponent extends UiComponent {
      */
     isValid( report = false ) {
 
+        // Skip validation
+        if ( this.config.get( 'skipValidate' ) ) return true;
+
         // Pure html5 validation
         if ( this.config.get( 'validatePureHtml5' ) ) {
             const check = report ? 'reportValidity' : 'checkValidity';
@@ -331,9 +331,6 @@ export class UiFormComponent extends UiComponent {
             }
             return true;
         }
-
-        // Skip validation
-        if ( this.config.get( 'skipValidate' ) ) return true;
 
         // Plugin validation
         const results = this.plugins.run( 'validateForm', [ report ] );
@@ -366,7 +363,7 @@ export class UiFormComponent extends UiComponent {
         if ( this.debug ) this.debug.log( this.constructor.name + '::event_submitClick', event, button );
 
         // Submit click validation
-        if ( !this.isValid( this.config.exposed.validateReport ) ) {
+        if ( !this.isValid( this.config.get( 'validateReport' ) ) ) {
 
             // Swallow the event and pretend it never happened
             event.preventDefault();
@@ -378,7 +375,7 @@ export class UiFormComponent extends UiComponent {
         }
 
         // Remember click target
-        if ( this.config.exposed.addSubmitValue ) {
+        if ( this.config.get( 'addSubmitValue' ) ) {
             this.#clicked_submit = button;
         }
     }
@@ -391,7 +388,7 @@ export class UiFormComponent extends UiComponent {
     #submit_async() {
 
         // Get async default options
-        const options = cloneObject( this.config.exposed.asyncOptions );
+        const options = cloneObject( this.config.get( 'asyncOptions' ) );
 
         // Set url and method from form element only if not specified
         if ( !options.url ) options.url = this.dom.getAttribute( 'action' );
@@ -404,8 +401,10 @@ export class UiFormComponent extends UiComponent {
         const data = new FormData( this.dom );
 
         // Add submit value
-        if ( this.#clicked_submit && this.#clicked_submit.name && this.#clicked_submit.value ) {
-            data.append( this.#clicked_submit.name, this.#clicked_submit.value );
+        if ( this.#clicked_submit ) {
+            if ( this.#clicked_submit.name && this.#clicked_submit.value ) {
+                data.append( this.#clicked_submit.name, this.#clicked_submit.value );
+            }
             this.#clicked_submit = null;
         }
         if ( this.debug ) this.debug.log( this.constructor.name + '::submit_async', options, data );
@@ -426,7 +425,7 @@ export class UiFormComponent extends UiComponent {
      */
     canSubmit( silent = false ) {
         let can_submit = true;
-        if ( !this.config.exposed.sendableStates.includes( this.states.global ) ) {
+        if ( !this.config.get( 'sendableStates' ).includes( this.states.global ) ) {
             if ( !silent ) {
                 if ( this.states.is( 'complete' ) ) throw new UiFormComponentException( 'Form already sent' );
                 throw new UiFormComponentException( 'Form not submittable' );
@@ -449,7 +448,7 @@ export class UiFormComponent extends UiComponent {
             if ( !fake || !fake.click ) {
                 throw new UiFormComponentException( 'No fake submit available' );
             }
-            if ( typeof report === 'undefined' ) report = this.config.exposed.validateReport;
+            if ( typeof report === 'undefined' ) report = this.config.get( 'validateReport' );
             if ( this.isValid( report ) ) {
                 fake.click();
                 return true;
