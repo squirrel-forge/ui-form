@@ -302,6 +302,14 @@ const extendConfig = {
         // @type {null|string}
         errors : 'errors',
 
+        // Response data property to read response message from
+        // @type {null|string}
+        message : 'message',
+
+        // Field to use for global errors
+        // @type {string}
+        output : 'general',
+
         // Custom success callback
         // @type {null|Function|successCallback}
         successCallback : null,
@@ -310,9 +318,9 @@ const extendConfig = {
         // @type {null|Function|errorCallback}
         errorCallback : null,
 
-        // Error object used when none is available from the response
-        // @type {Object}
-        unknown : { general : 'An unknown error occured, please try again later.' },
+        // Error used when none is available from the response
+        // @type {string}
+        unknown : 'An unknown error occured, please try again later.',
     },
 };
 ```
@@ -419,6 +427,10 @@ UiFormPluginReCaptcha class - UiForm plugin for google recaptcha integration.
 #### Component settings
 Component settings are changed/extended as following.
 ```javascript
+// Event context: PluginContext|HTMLFormElement
+// Events:
+//  - recaptcha.load
+//  - recaptcha.token
 const extendConfig = {
     recaptcha : {
 
@@ -438,10 +450,6 @@ const extendConfig = {
         // Token callback name
         // @type {string}
         setTokenName : 'grecaptchaSetToken',
-
-        // Execute callback name
-        // @type {string}
-        executeName : 'grecaptchaExecute',
 
         // Append a recaptcha host element if none is defined
         // @type {(null|'form'|'body'|HTMLElement)}
@@ -484,7 +492,6 @@ const extendConfig = {
 class UiFormPluginReCaptcha extends UiPlugin {
   static pluginName : String
   constructor( options, context, debug ) {}
-  initComponent( context ) {} // void
 }
 ```
 For more details check the [UiFormPluginReCaptcha source file](../src/es6/Plugins/UiFormPluginReCaptcha.js).
