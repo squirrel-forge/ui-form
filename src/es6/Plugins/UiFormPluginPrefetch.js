@@ -25,6 +25,23 @@ import {
 class UiFormPluginPrefetchException extends Exception {}
 
 /**
+ * @typedef {Function} prefetchCallback
+ * @param {Function} success - Success callback
+ * @param {Function} error - Error callback, can receive an optional error event argument
+ * @param {Object|UiFormPluginJSONResponse} - Plugin object
+ * @return {boolean} - Return true to prevent any further default actions
+ */
+
+/**
+ * @typedef {Function} responseCallback
+ * @param {Function} success - Success callback
+ * @param {Function} error - Error callback, can receive an optional error event argument
+ * @param {Object|AsyncRequest} - Request instance
+ * @param {Object|UiFormPluginJSONResponse} - Plugin object
+ * @return {boolean} - Return true to prevent any further default actions
+ */
+
+/**
  * Ui form plugin prefetch
  * @class
  */
@@ -97,11 +114,11 @@ export class UiFormPluginPrefetch extends UiPlugin {
                 flatFields : false,
 
                 // Custom prefetch callback, replaces default request
-                // @type {null|Function}
+                // @type {null|Function|prefetchCallback}
                 prefetchCallback : null,
 
                 // Custom response callback, runs in addition to fields set
-                // @type {null|Function}
+                // @type {null|Function|responseCallback}
                 responseCallback : null,
 
                 // Refetch request on reset
