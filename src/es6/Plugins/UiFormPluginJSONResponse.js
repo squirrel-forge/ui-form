@@ -23,16 +23,16 @@ class UiFormPluginJSONResponseException extends Exception {}
 
 /**
  * @typedef {Function} successCallback
- * @param {Object|AsyncRequest} request - Request object
+ * @param {null|Object|AsyncRequest} request - Request object
  * @param {Object|UiFormPluginJSONResponse} - Plugin object
- * @return {boolean} - Return true to continue with default actions
+ * @return {boolean} - Return true to prevent any further default actions
  */
 
 /**
  * @typedef {Function} errorCallback
- * @param {Object|AsyncRequest} request - Request object
+ * @param {null|Object|AsyncRequest} request - Request object
  * @param {Object|UiFormPluginJSONResponse} - Plugin object
- * @return {boolean} - Return true to continue with default actions
+ * @return {boolean} - Return true to prevent any further default actions
  */
 
 /**
@@ -72,6 +72,14 @@ export class UiFormPluginJSONResponse extends UiPlugin {
                 // @type {null|string}
                 errors : 'errors',
 
+                // Response data property to read response message from
+                // @type {null|string}
+                message : 'message',
+
+                // Field to use for global errors
+                // @type {string}
+                output : 'general',
+
                 // Custom success callback
                 // @type {null|Function|successCallback}
                 successCallback : null,
@@ -80,9 +88,9 @@ export class UiFormPluginJSONResponse extends UiPlugin {
                 // @type {null|Function|errorCallback}
                 errorCallback : null,
 
-                // Error object used when none is available from the response
-                // @type {Object}
-                unknown : { general : 'An unknown error occured, please try again later.' },
+                // Error used when none is available from the response
+                // @type {string}
+                unknown : 'An unknown error occured, please try again later.',
             },
         };
 
@@ -157,18 +165,65 @@ export class UiFormPluginJSONResponse extends UiPlugin {
      * @return {void}
      */
     #errors( data ) {
-        const prop = this.context.config.get( 'response.errors' );
-        if ( !prop ) return;
-        const unknown = this.context.config.get( 'response.unknown' );
-        if ( unknown && !isPojo( data ) || !this.debug && !isPojo( data[ prop ] ) ) {
-            data = {};
-            data[ prop ] = unknown;
-        }
-        if ( data && data[ prop ] ) {
-            if ( !isPojo( data[ prop ] ) || !Object.keys( data[ prop ] ).length ) {
-                throw new UiFormPluginJSONResponseException( 'Response errors must be a non empty plain Object' );
+        const options = this.context.config.get( 'response' );
+
+        // Skip since errors are disabled
+        if ( !options.errors ) return;
+
+        // Invalid response object
+        if ( !isPojo( data ) ) data = {};
+
+        // Info
+        const has_prop = isPojo( data[ options.errors ] );
+        let is_empty = !has_prop || !Object.keys( data[ options.errors ].length );
+        if ( !has_prop ) data[ options.errors ] = {};
+
+        // No error infos available
+        if ( is_empty ) {
+
+            // Requires an output target property
+            if ( !options.output ) {
+                throw new UiFormPluginJSONResponseException( 'Response errors are empty and no output target is set' );
             }
-            this.context.plugins.run( 'showFieldsErrors', [ data[ prop ], null, this ] );
+
+            // Can show message
+            if ( options.message && data[ options.message ] ) {
+                this.#set_field_error( data[ options.errors ], options.output, data[ options.message ] );
+                is_empty = false;
+            }
+
+            // Can show unknown error
+            if ( is_empty && options.unknown ) {
+                this.#set_field_error( data[ options.errors ], options.output, options.unknown );
+                is_empty = false;
+            }
+        }
+
+        // Still empty?
+        if ( is_empty ) {
+            throw new UiFormPluginJSONResponseException( 'Invalid response errors, message property and unknown error option.' );
+        }
+
+        // Send the errors to the display plugin/s
+        this.context.plugins.run( 'showFieldsErrors', [ data[ options.errors ], null, this ] );
+    }
+
+    /**
+     * Set field error
+     * @private
+     * @param {Object} errors - Errors object
+     * @param {string} field - Field name
+     * @param {string|Array<string>} error - Field error/s
+     * @return {void}
+     */
+    #set_field_error( errors, field, error ) {
+        if ( !( errors[ field ] instanceof Array ) ) {
+            errors[ field ] = errors[ field ] ? [ errors[ field ] ] : [];
+        }
+        if ( error instanceof Array ) {
+            errors[ field ] = errors[ field ].concat( error );
+        } else {
+            errors[ field ].push( error );
         }
     }
 
@@ -181,7 +236,7 @@ export class UiFormPluginJSONResponse extends UiPlugin {
     #responseSuccess( request ) {
         const callback = this.context.config.get( 'response.successCallback' );
         let resume = true;
-        if ( callback ) resume = callback( request, this );
+        if ( callback ) resume = !callback( request, this );
         if ( !resume ) return;
         this.#redirect( request.responseParsed );
     }
@@ -195,7 +250,7 @@ export class UiFormPluginJSONResponse extends UiPlugin {
     #responseError( request = null ) {
         const callback = this.context.config.get( 'response.errorCallback' );
         let resume = true;
-        if ( callback ) resume = callback( request, this );
+        if ( callback ) resume = !callback( request, this );
         if ( !resume ) return;
         if ( request ) this.#redirect( request.responseParsed );
         this.#errors( request ? request.responseParsed : null );
