@@ -481,6 +481,9 @@ export class UiFormPluginFieldControl extends UiPlugin {
     fieldIsValid( field, report ) {
         const options = this.context.config.get( 'fields.validate' );
 
+        // Skip validation
+        if ( options.skip ) return true;
+
         // Pure html5 validation
         if ( options.pureHtml5 ) {
 
@@ -505,9 +508,6 @@ export class UiFormPluginFieldControl extends UiPlugin {
             }
             return true;
         }
-
-        // Skip validation
-        if ( options.skip ) return true;
 
         // Plugin validation
         const results = this.context.plugins.run( 'validateField', [ field, report ] );
