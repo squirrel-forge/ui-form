@@ -84,6 +84,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     },
                 },
 
+                // TODO: move (disableOn,enableOn) to component and move submit options to config root
                 // Submit disabled control by event types
                 // @type {Object}
                 submit : {
@@ -145,6 +146,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     'group.error.visible' : { classOn : 'input-group--error-visible' },
                 },
 
+                // TODO: Check since option does not seem respected in every case, make array of state names
                 // Use values states, filled, empty, input and change
                 // @type {boolean}
                 valueStates : true,
@@ -807,7 +809,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 if ( host_output ) host_output.innerHTML = '';
                 if ( group && group_output ) group_output.innerHTML = '';
                 if ( !host_output && !group_output && this.debug ) {
-                    this.debug.error( this.constructor.name + '::clearFieldErrors Could not find error output for:', input );
+                    this.debug.warn( this.constructor.name + '::clearFieldErrors Could not find error output for:', input );
                 }
             }
         } else if ( this.debug ) {
