@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.1
+ - Added/updated *UiFormPluginFieldControl* disabled error and field options.
+ - Added *UiFormPluginFieldControl.setObjectFieldError()* to add an error to an existing or new error object.
+ - Synced *UiFormPluginJSONResponse* error/message/unknown output with *UiFormPluginFieldControl* and changed option *disabledErrors* to *disabledError*.
+
 ## 0.9.0
  - Form component and fields plugin *skipValidate* and *validate.skip* now also affect the pure html validate options.
  - Improved JSON response plugin error handling and added message property consumption as output error.
