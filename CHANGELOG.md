@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.2
+ - Fixed *UiFormPluginFieldControl* option *fields.errors.mapFields* and corresponding method, now maps correctly.
+
 ## 0.9.1
  - Added/updated *UiFormPluginFieldControl* disabled error and field options.
  - Added *UiFormPluginFieldControl.setObjectFieldError()* to add an error to an existing or new error object.
