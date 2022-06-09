@@ -833,25 +833,23 @@ export class UiFormPluginFieldControl extends UiPlugin {
             }
 
             // Rewrite with a from->to map
-            const map_keys = Object.keys( options.mapFields );
-            const error_keys = Object.keys( errors );
-            for ( let i = 0; i < error_keys.length; i++ ) {
-                const ek = error_keys[ i ];
-                const mk = map_keys.indexOf( ek );
-                if ( mk !== -1 ) {
+            const map = Object.entries( options.mapFields );
+            for ( let i = 0; i < map.length; i++ ) {
+                const [ from, to ] = map[ i ];
+                if ( errors[ from ] ) {
 
                     // Append errors to existing
-                    if ( !options.replaceMapped && errors[ options.mapFields[ mk ] ] ) {
-                        errors[ options.mapFields[ mk ] ] = errors[ options.mapFields[ mk ] ].concat( errors[ ek ] );
+                    if ( !options.replaceMapped && errors[ to ] ) {
+                        errors[ to ] = errors[ to ].concat( errors[ from ] );
                     } else {
 
                         // Set remapped error
-                        errors[ options.mapFields[ mk ] ] = errors[ ek ];
+                        errors[ to ] = errors[ from ];
                     }
 
                     // Remove old field
                     if ( options.removeMapped ) {
-                        delete errors[ ek ];
+                        delete errors[ from ];
                     }
                 }
             }
