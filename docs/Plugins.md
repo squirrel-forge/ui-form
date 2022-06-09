@@ -60,9 +60,13 @@ const extendConfig = {
             // @type {boolean}
             showDisabledError : true,
 
+            // Field to use for the disabled error, defaults to fields.errors.global if not set
+            // @type {null|string}
+            output : null,
+
             // Error to show when clicking disabled submit
-            // @type {Object|Function}
-            disabledErrors : { general : [ 'Form has errors or is already completed.' ] },
+            // @type {string|Array|Function}
+            disabledError : 'Form has errors or is already completed.',
 
             // Wraps the submit button to catch event when disabled
             // @type {string}
@@ -123,6 +127,10 @@ const extendConfig = {
         // Error handling
         // @type {Object}
         errors : {
+
+            // Field to use for global errors
+            // @type {string}
+            global : 'general',
 
             // Only set error state
             // @type {boolean}
@@ -206,7 +214,7 @@ const extendConfig = {
 class UiFormPluginFieldControl extends UiPlugin {
   static pluginName : String
   constructor( options, context, debug ) {}
-  initComponent( context ) {} // void
+  setObjectFieldError( errors, error, field = null, params = [] ) {} // void
   submitDisable( state = true ) {} // void
   fieldSetState( element, state ) {} // HTMLElement
   fieldUnsetState( element, state ) {} // HTMLElement
@@ -306,9 +314,9 @@ const extendConfig = {
         // @type {null|string}
         message : 'message',
 
-        // Field to use for global errors
-        // @type {string}
-        output : 'general',
+        // Field to use for global errors, defaults to fields.errors.global if not set
+        // @type {null|string}
+        output : null,
 
         // Custom success callback
         // @type {null|Function|successCallback}
@@ -319,7 +327,7 @@ const extendConfig = {
         errorCallback : null,
 
         // Error used when none is available from the response
-        // @type {string}
+        // @type {string|Array|Function}
         unknown : 'An unknown error occured, please try again later.',
     },
 };
