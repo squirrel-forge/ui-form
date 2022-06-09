@@ -100,9 +100,13 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     // @type {boolean}
                     showDisabledError : true,
 
+                    // Field to use for the disabled error, defaults to fields.errors.global if not set
+                    // @type {null|string}
+                    output : null,
+
                     // Error to show when clicking disabled submit
-                    // @type {Object|Function}
-                    disabledErrors : { general : [ 'Form has errors or is already completed.' ] },
+                    // @type {string|Array|Function}
+                    disabledError : 'Form has errors or is already completed.',
 
                     // Wraps the submit button to catch event when disabled
                     // @type {string}
@@ -163,6 +167,10 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 // Error handling
                 // @type {Object}
                 errors : {
+
+                    // Field to use for global errors
+                    // @type {string}
+                    global : 'general',
 
                     // Only set error state
                     // @type {boolean}
@@ -364,14 +372,55 @@ export class UiFormPluginFieldControl extends UiPlugin {
     #event_clickDisabled( event ) {
         if ( event.currentTarget && event.currentTarget.firstElementChild.disabled ) {
             const options = this.context.config.get( 'fields.submit' );
-            let errors = options.disabledErrors;
-            if ( typeof errors === 'function' ) {
-                errors = errors( event, this );
-            }
-            if ( !isPojo( errors ) ) {
-                throw new UiFormPluginFieldControlException( 'The disabledErrors option must resolve to a plain Object' );
-            }
+            const errors = {};
+            this.setObjectFieldError( errors, options.disabledError, options.output, [ event, this ] );
             this.context.plugins.run( 'showFieldsErrors', [ errors, null, this ] );
+        }
+    }
+
+    /**
+     * Set field error on object
+     * @param {Object} errors - Errors object target
+     * @param {string|Array|Function} error - Error value
+     * @param {null|string} field - Optional error field property name, default: config.fields.errors.global
+     * @param {Array} params - Optional value function arguments
+     * @return {void}
+     */
+    setObjectFieldError( errors, error, field = null, params = [] ) {
+        if ( !isPojo( errors ) ) {
+            throw new UiFormPluginFieldControlException( 'Argument errors must be a plain object reference' );
+        }
+
+        /**
+         * Every check callback
+         * @param {*} v - Value to check
+         * @return {boolean} - True if valid
+         */
+        const all_strings = ( v ) => { return typeof v === 'string' && v.length; };
+
+        // Get default field if not set
+        if ( !field || !field.length ) field = this.context.config.get( 'fields.errors.global' );
+
+        // Process value
+        if ( typeof error === 'function' ) {
+            error = error( ...params, this.context );
+        }
+
+        // Validate error value
+        if ( !( typeof error === 'string' && error.length || error instanceof Array && error.every( all_strings ) ) ) {
+            throw new UiFormPluginFieldControlException( 'Argument value must be a non empty String, Array or Function' );
+        }
+
+        // Should be an array
+        if ( !( errors[ field ] instanceof Array ) ) {
+            errors[ field ] = errors[ field ] ? [ errors[ field ] ] : [];
+        }
+
+        // Join or append value
+        if ( error instanceof Array ) {
+            errors[ field ] = errors[ field ].concat( error );
+        } else {
+            errors[ field ].push( error );
         }
     }
 
