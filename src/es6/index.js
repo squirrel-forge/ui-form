@@ -1,6 +1,6 @@
 /* !
  * @module      : @squirrel-forge/ui-form
- * @version     : 0.9.2
+ * @version     : 0.9.3
  * @license     : MIT
  * @copyright   : 2022 squirrel-forge
  * @author      : Daniel Hartwell aka. siux <me@siux.info>
