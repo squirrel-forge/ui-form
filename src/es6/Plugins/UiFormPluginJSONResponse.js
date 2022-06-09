@@ -182,9 +182,9 @@ export class UiFormPluginJSONResponse extends UiPlugin {
         // No error infos available
         if ( is_empty ) {
 
-            // Requires a fields plugin
-            if ( !this.context.plugins.has( 'fields' ) ) {
-                throw new UiFormPluginJSONResponseException( 'A fields plugin is required for message or errors display' );
+            // Requires a fieldcontrol plugin
+            if ( !this.context.plugins.has( 'fieldcontrol' ) ) {
+                throw new UiFormPluginJSONResponseException( 'A fieldcontrol plugin is required for message or errors display' );
             } else {
                 let err;
 
@@ -202,7 +202,7 @@ export class UiFormPluginJSONResponse extends UiPlugin {
 
                 // Process if not empty anymore
                 if ( !is_empty ) {
-                    this.context.plugins.exec( 'fields', 'setObjectFieldError', [
+                    this.context.plugins.exec( 'fieldcontrol', 'setObjectFieldError', [
                         data[ options.errors ],
                         err,
                         options.output,
