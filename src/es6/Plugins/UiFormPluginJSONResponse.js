@@ -76,9 +76,9 @@ export class UiFormPluginJSONResponse extends UiPlugin {
                 // @type {null|string}
                 message : 'message',
 
-                // Field to use for global errors
-                // @type {string}
-                output : 'general',
+                // Field to use for global errors, defaults to fields.errors.global if not set
+                // @type {null|string}
+                output : null,
 
                 // Custom success callback
                 // @type {null|Function|successCallback}
@@ -89,7 +89,7 @@ export class UiFormPluginJSONResponse extends UiPlugin {
                 errorCallback : null,
 
                 // Error used when none is available from the response
-                // @type {string}
+                // @type {string|Array|Function}
                 unknown : 'An unknown error occured, please try again later.',
             },
         };
@@ -138,7 +138,8 @@ export class UiFormPluginJSONResponse extends UiPlugin {
         if ( request.responseType !== 'application/json'
             || request.responseParsed === null
             || !isPojo( request.responseParsed ) ) {
-            throw new UiFormPluginJSONResponseException( 'Expected application/json but got an empty response or wrong type: ' + request.responseType );
+            const message = 'Expected application/json but got an empty response or wrong type: ';
+            throw new UiFormPluginJSONResponseException( message + request.responseType );
         }
     }
 
@@ -181,21 +182,33 @@ export class UiFormPluginJSONResponse extends UiPlugin {
         // No error infos available
         if ( is_empty ) {
 
-            // Requires an output target property
-            if ( !options.output ) {
-                throw new UiFormPluginJSONResponseException( 'Response errors are empty and no output target is set' );
-            }
+            // Requires a fields plugin
+            if ( !this.context.plugins.has( 'fields' ) ) {
+                throw new UiFormPluginJSONResponseException( 'A fields plugin is required for message or errors display' );
+            } else {
+                let err;
 
-            // Can show message
-            if ( options.message && data[ options.message ] ) {
-                this.#set_field_error( data[ options.errors ], options.output, data[ options.message ] );
-                is_empty = false;
-            }
+                // Can show message
+                if ( options.message && data[ options.message ] ) {
+                    err = data[ options.message ];
+                    is_empty = false;
+                }
 
-            // Can show unknown error
-            if ( is_empty && options.unknown ) {
-                this.#set_field_error( data[ options.errors ], options.output, options.unknown );
-                is_empty = false;
+                // Can show unknown error, unless message was available
+                if ( is_empty && options.unknown ) {
+                    err = options.unknown;
+                    is_empty = false;
+                }
+
+                // Process if not empty anymore
+                if ( !is_empty ) {
+                    this.context.plugins.exec( 'fields', 'setObjectFieldError', [
+                        data[ options.errors ],
+                        err,
+                        options.output,
+                        [ data, this ],
+                    ] );
+                }
             }
         }
 
@@ -206,25 +219,6 @@ export class UiFormPluginJSONResponse extends UiPlugin {
 
         // Send the errors to the display plugin/s
         this.context.plugins.run( 'showFieldsErrors', [ data[ options.errors ], null, this ] );
-    }
-
-    /**
-     * Set field error
-     * @private
-     * @param {Object} errors - Errors object
-     * @param {string} field - Field name
-     * @param {string|Array<string>} error - Field error/s
-     * @return {void}
-     */
-    #set_field_error( errors, field, error ) {
-        if ( !( errors[ field ] instanceof Array ) ) {
-            errors[ field ] = errors[ field ] ? [ errors[ field ] ] : [];
-        }
-        if ( error instanceof Array ) {
-            errors[ field ] = errors[ field ].concat( error );
-        } else {
-            errors[ field ].push( error );
-        }
     }
 
     /**
