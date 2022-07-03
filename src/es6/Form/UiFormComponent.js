@@ -1,22 +1,8 @@
 /**
  * Requires
  */
-import {
-    UiComponent
-} from '@squirrel-forge/ui-core';
-
-// Import for local dev
-// } from '../../../../ui-core';
-import {
-    AsyncRequest,
-    Exception,
-    cloneObject,
-    appendHTML,
-    bindNodeList
-} from '@squirrel-forge/ui-util';
-
-// Import for local dev
-// } from '../../../../ui-util';
+import { UiComponent } from '@squirrel-forge/ui-core';
+import { AsyncRequest, Exception, cloneObject, appendHTML, bindNodeList } from '@squirrel-forge/ui-util';
 
 /**
  * Ui form component exception

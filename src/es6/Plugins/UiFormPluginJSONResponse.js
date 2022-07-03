@@ -1,19 +1,8 @@
 /**
  * Requires
  */
-import {
-    UiPlugin
-} from '@squirrel-forge/ui-core';
-
-// Import for local dev
-// } from '../../../../ui-core';
-import {
-    Exception,
-    isPojo
-} from '@squirrel-forge/ui-util';
-
-// Import for local dev
-// } from '../../../../ui-util';
+import { UiPlugin } from '@squirrel-forge/ui-core';
+import { Exception, isPojo } from '@squirrel-forge/ui-util';
 
 /**
  * Ui form plugin JSON response exception

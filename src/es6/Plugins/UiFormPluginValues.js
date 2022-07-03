@@ -1,12 +1,7 @@
 /**
  * Requires
  */
-import {
-    UiPlugin
-} from '@squirrel-forge/ui-core';
-
-// Import for local dev
-// } from '../../../../ui-core';
+import { UiPlugin } from '@squirrel-forge/ui-core';
 import { FormValues } from '../Form/FormValues.js';
 
 /**

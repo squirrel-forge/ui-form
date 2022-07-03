@@ -1,15 +1,7 @@
 /**
  * Requires
  */
-import {
-    Exception,
-    strCreate,
-    strAccess,
-    isPojo
-} from '@squirrel-forge/ui-util';
-
-// Import for local dev
-// } from '../../../../ui-util';
+import { Exception, strCreate, strAccess, isPojo } from '@squirrel-forge/ui-util';
 
 /**
  * Form values exception

@@ -1,12 +1,7 @@
 /**
  * Requires
  */
-import {
-    Exception
-} from '@squirrel-forge/ui-util';
-
-// Import for local dev
-// } from '../../../../ui-util';
+import { Exception } from '@squirrel-forge/ui-util';
 
 /**
  * Html5 validator exception
