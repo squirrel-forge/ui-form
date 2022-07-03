@@ -17,12 +17,15 @@ import {
 
 /**
  * Ui form plugin recaptcha exception
+ * @class
+ * @extends Exception
  */
 class UiFormPluginReCaptchaException extends Exception {}
 
 /**
  * Ui form plugin recaptcha
  * @class
+ * @extends UiPlugin
  */
 export class UiFormPluginReCaptcha extends UiPlugin {
 

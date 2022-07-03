@@ -11,6 +11,7 @@ import {
 /**
  * Html5 validator exception
  * @class
+ * @extends Exception
  */
 class Html5ValidatorException extends Exception {}
 

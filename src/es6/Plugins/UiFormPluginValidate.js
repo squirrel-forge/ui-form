@@ -17,12 +17,14 @@ import {
 /**
  * Ui form plugin validate exception
  * @class
+ * @extends Exception
  */
 class UiFormPluginValidateException extends Exception {}
 
 /**
  * Ui form plugin validate
  * @class
+ * @extends UiPlugin
  */
 export class UiFormPluginValidate extends UiPlugin {
 

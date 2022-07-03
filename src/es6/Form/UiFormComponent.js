@@ -20,12 +20,15 @@ import {
 
 /**
  * Ui form component exception
+ * @class
+ * @extends Exception
  */
 class UiFormComponentException extends Exception {}
 
 /**
  * Ui form component
  * @class
+ * @extends UiComponent
  */
 export class UiFormComponent extends UiComponent {
 

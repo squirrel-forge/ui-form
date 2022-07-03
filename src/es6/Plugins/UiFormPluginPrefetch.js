@@ -21,6 +21,7 @@ import {
 /**
  * Ui form plugin prefetch exception
  * @class
+ * @extends Exception
  */
 class UiFormPluginPrefetchException extends Exception {}
 
@@ -44,6 +45,7 @@ class UiFormPluginPrefetchException extends Exception {}
 /**
  * Ui form plugin prefetch
  * @class
+ * @extends UiPlugin
  */
 export class UiFormPluginPrefetch extends UiPlugin {
 

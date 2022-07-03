@@ -18,6 +18,7 @@ import {
 /**
  * Ui form plugin JSON response exception
  * @class
+ * @extends Exception
  */
 class UiFormPluginJSONResponseException extends Exception {}
 
@@ -38,6 +39,7 @@ class UiFormPluginJSONResponseException extends Exception {}
 /**
  * Ui form plugin JSON response
  * @class
+ * @extends UiPlugin
  */
 export class UiFormPluginJSONResponse extends UiPlugin {
 

@@ -12,6 +12,7 @@ import { FormValues } from '../Form/FormValues.js';
 /**
  * Ui form plugin values
  * @class
+ * @extends UiPlugin
  */
 export class UiFormPluginValues extends UiPlugin {
 

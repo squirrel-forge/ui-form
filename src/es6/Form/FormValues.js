@@ -14,6 +14,7 @@ import {
 /**
  * Form values exception
  * @class
+ * @extends Exception
  */
 class FormValuesException extends Exception {}
 

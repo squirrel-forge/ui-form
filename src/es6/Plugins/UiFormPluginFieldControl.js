@@ -23,12 +23,14 @@ import {
 /**
  * Ui form plugin field control exception
  * @class
+ * @extends Exception
  */
 class UiFormPluginFieldControlException extends Exception {}
 
 /**
  * Ui form plugin field control
  * @class
+ * @extends UiPlugin
  */
 export class UiFormPluginFieldControl extends UiPlugin {
 
