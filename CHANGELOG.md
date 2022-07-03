@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.4
+ - Fixed some code docs.
+ - Removed dev imports.
+
 ## 0.9.3
  - Fixed *UiFormPluginJSONResponse* invalid "fields" plugin reference with "fieldcontrol".
  - Added some dev notes and reduced clearFieldErrors missing output reference from error to warning.
