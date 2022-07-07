@@ -53,6 +53,7 @@ For more details check the [Html5Validator source file](../src/es6/Form/Html5Val
 
 ### UiFormComponent
 UiFormComponent class - Async form component with events and plugins support.
+The component extends [UiComponent](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiComponent) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings might be changed or extended through plugins.
@@ -128,11 +129,11 @@ const defaults = {
 
 #### Class overview
 ```javascript
-// Event names: initialized, progress, sending, submit, before.submit, async.modify, error, success, complete, reset
 class UiFormComponent extends UiComponent {
   static selector : String
   constructor( element, settings = null, plugins = [], extend = [], init = true, debug = null ) {}
   valid : Boolean
+  clickedSubmit : null|HTMLButtonElement
   init() {} // void
   bind() {} // void
   isValid( report = false ) {} // boolean
@@ -143,6 +144,16 @@ class UiFormComponent extends UiComponent {
 }
 ```
 For more details check the [UiFormComponent source file](../src/es6/Form/UiFormComponent.js).
+
+#### Events
+ - **before.submit** - Fired before any data is sent, can be prevented with event.preventDefault(). You may also prevent submission by calling preventDefault() on the regular form submit event.
+ - **async.modify** - Fired when the async request is ready to be sent, data can be modified, but the sending process cannot be aborted.
+ - **sending** - Fired when form has started to send data.
+ - **progress** - Fired when upload progress is made when sending files.
+ - **error** - Fired when the async request received an error response.
+ - **success** - Fired when the async request received a success response.
+ - **complete** - Always fired after the *error* or *success* events.
+ - **reset** - Fired when the *UiFormComponent.reset()* method is called.
 
 #### Using the component
 For details refer to the settings, class overview and code file mentioned above.

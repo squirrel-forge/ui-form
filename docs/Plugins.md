@@ -17,6 +17,7 @@
 
 ### UiFormPluginFieldControl
 UiFormPluginFieldControl class - UiForm plugin for input states and errors.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -295,6 +296,7 @@ therefore the inputs do not require individual outputs anymore, this can be tune
 
 ### UiFormPluginJSONResponse
 UiFormPluginJSONResponse class - UiForm plugin for easy JSON response handling.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -346,6 +348,7 @@ For more details check the [UiFormPluginJSONResponse source file](../src/es6/Plu
 
 ### UiFormPluginPrefetch
 UiFormPluginPrefetch class - UiForm plugin for prefetching information or field values.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 When using this plugin, make sure to load it before all others since it modifies the default event and state flow.
 
@@ -431,6 +434,7 @@ For more details check the [UiFormPluginPrefetch source file](../src/es6/Plugins
 
 ### UiFormPluginReCaptcha
 UiFormPluginReCaptcha class - UiForm plugin for google recaptcha integration.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -508,6 +512,7 @@ For more details check the [UiFormPluginReCaptcha source file](../src/es6/Plugin
 
 ### UiFormPluginValidate
 UiFormPluginValidate class - UiForm plugin for input and form validation.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -587,6 +592,7 @@ For more details check the [UiFormPluginValidate source file](../src/es6/Plugins
 
 ### UiFormPluginValues
 UiFormPluginValues class - UiForm plugin for input values handling.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
