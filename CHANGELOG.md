@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.5
+ - Added *SubmitEvent* and *ClickedSubmit* references to *before.submit* and *sending* events on *UiFormComponent* if available.
+ - Added *clickedSubmit* property to *UiFormComponent*, may be *null* if not submitted via button or on auto reset.
+ - Only reset *clickedSubmit* on form reset.
+ - Fixed more code docs.
+ - Updated component event docs and extension references.
+
 ## 0.9.4
  - Fixed some code docs.
  - Removed dev imports.
