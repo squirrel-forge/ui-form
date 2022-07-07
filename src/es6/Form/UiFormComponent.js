@@ -265,8 +265,11 @@ export class UiFormComponent extends UiComponent {
             return;
         }
 
+        // Add some info to the sending event
+        const event_data = { event : event, button : this.#clicked_submit };
+
         // Allow plugins and external handlers to prevent submission
-        if ( !this.dispatchEvent( 'before.submit', { event } ) || event.defaultPrevented ) {
+        if ( !this.dispatchEvent( 'before.submit', event_data ) || event.defaultPrevented ) {
             if ( this.debug ) {
                 this.debug.log( this.constructor.name + '::event_submit default prevented via isValid method or before.submit event' );
             }
@@ -285,10 +288,16 @@ export class UiFormComponent extends UiComponent {
 
         // Begin sending
         this.states.set( 'sending' );
-        this.dispatchEvent( 'sending' );
+        this.dispatchEvent( 'sending', event_data );
+    }
 
-        // Clear clicked submit button
-        this.#clicked_submit = null;
+    /**
+     * Clicked submit getter
+     * @public
+     * @return {null|HTMLButtonElement} - Submit button if available
+     */
+    get clickedSubmit() {
+        return this.#clicked_submit;
     }
 
     /**
@@ -364,9 +373,7 @@ export class UiFormComponent extends UiComponent {
         }
 
         // Remember click target
-        if ( this.config.get( 'addSubmitValue' ) ) {
-            this.#clicked_submit = button;
-        }
+        this.#clicked_submit = button;
     }
 
     /**
@@ -390,12 +397,11 @@ export class UiFormComponent extends UiComponent {
         const data = new FormData( this.dom );
 
         // Add submit value
-        if ( this.#clicked_submit ) {
-            if ( this.#clicked_submit.name && this.#clicked_submit.value ) {
-                data.append( this.#clicked_submit.name, this.#clicked_submit.value );
-            }
-            this.#clicked_submit = null;
-        }
+        if ( this.config.get( 'addSubmitValue' )
+            && this.#clicked_submit
+            && this.#clicked_submit.name
+            && this.#clicked_submit.value
+        ) data.append( this.#clicked_submit.name, this.#clicked_submit.value );
         if ( this.debug ) this.debug.log( this.constructor.name + '::submit_async', options, data );
 
         // Send
