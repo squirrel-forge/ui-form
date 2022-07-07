@@ -15,17 +15,17 @@ class UiFormPluginPrefetchException extends Exception {}
  * @typedef {Function} prefetchCallback
  * @param {Function} success - Success callback
  * @param {Function} error - Error callback, can receive an optional error event argument
- * @param {Object|UiFormPluginJSONResponse} - Plugin object
- * @return {boolean} - Return true to prevent any further default actions
+ * @param {Object|UiFormPluginJSONResponse} plugin - Plugin object
+ * @return {void}
  */
 
 /**
  * @typedef {Function} responseCallback
  * @param {Function} success - Success callback
  * @param {Function} error - Error callback, can receive an optional error event argument
- * @param {Object|AsyncRequest} - Request instance
- * @param {Object|UiFormPluginJSONResponse} - Plugin object
- * @return {boolean} - Return true to prevent any further default actions
+ * @param {Object|AsyncRequest} request - Request instance
+ * @param {Object|UiFormPluginJSONResponse} plugin - Plugin object
+ * @return {void}
  */
 
 /**
@@ -248,9 +248,10 @@ export class UiFormPluginPrefetch extends UiPlugin {
     /**
      * Request success
      * @private
+     * @param {Object|Event} event - Error details
      * @return {void}
      */
-    #prefetch_success() {
+    #prefetch_success( event ) {
         const options = this.context.config.get( 'prefetch' );
 
         /**
@@ -258,7 +259,7 @@ export class UiFormPluginPrefetch extends UiPlugin {
          * @return {void}
          */
         const success_callback = () => {
-            this.context.dispatchEvent( 'prefetch.success', { request : this.#request, plugin : this } );
+            this.context.dispatchEvent( 'prefetch.success', { request : this.#request, event : event, plugin : this } );
             this.#ready();
         };
 
@@ -267,7 +268,7 @@ export class UiFormPluginPrefetch extends UiPlugin {
          * @param {*} e - Error
          * @return {void}
          */
-        const error_callback = ( e ) => { this.#prefetch_error( e ); };
+        const error_callback = ( e ) => { this.#prefetch_error( e || event ); };
 
         // JSON response
         if ( this.#request.responseType === 'application/json' && isPojo( this.#request.responseParsed ) ) {
@@ -284,7 +285,7 @@ export class UiFormPluginPrefetch extends UiPlugin {
 
         // Run the response callback if available
         if ( options.responseCallback ) {
-            options.responseCallback( success_callback, error_callback, this.#request, this );
+            options.responseCallback( success_callback, error_callback, this.#request, event, this );
             return;
         }
 

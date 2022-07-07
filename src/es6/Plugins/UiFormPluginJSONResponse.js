@@ -14,14 +14,14 @@ class UiFormPluginJSONResponseException extends Exception {}
 /**
  * @typedef {Function} successCallback
  * @param {null|Object|AsyncRequest} request - Request object
- * @param {Object|UiFormPluginJSONResponse} - Plugin object
+ * @param {Object|UiFormPluginJSONResponse} plugin - Plugin object
  * @return {boolean} - Return true to prevent any further default actions
  */
 
 /**
  * @typedef {Function} errorCallback
  * @param {null|Object|AsyncRequest} request - Request object
- * @param {Object|UiFormPluginJSONResponse} - Plugin object
+ * @param {Object|UiFormPluginJSONResponse} plugin - Plugin object
  * @return {boolean} - Return true to prevent any further default actions
  */
 
