@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.6
+ - Added *UiFormComponent.bindSubmits()* and *UiFormComponent.bindResets()* to allow for manual binding of submit and reset buttons.
+
 ## 0.9.5
  - Added *SubmitEvent* and *ClickedSubmit* references to *before.submit* and *sending* events on *UiFormComponent* if available.
  - Added *clickedSubmit* property to *UiFormComponent*, may be *null* if not submitted via button or on auto reset.
