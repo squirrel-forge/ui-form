@@ -207,23 +207,14 @@ export class UiFormComponent extends UiComponent {
 
         // Reset buttons
         const resets = this.getDomRefs( 'reset' );
-        if ( resets && resets.length ) {
-            bindNodeList( resets, [
-                [ 'click', ( event ) => {
-                    event.preventDefault();
-                    this.reset( event.currentTarget.getAttribute( 'data-soft' ) === 'true' );
-                } ],
-            ] );
-        }
+        if ( resets && resets.length ) this.bindResets( resets );
 
         // Submit buttons
         const submits = this.getDomRefs( 'submit' );
         if ( !submits || !submits.length ) {
             throw new UiFormComponentException( 'Form requires at least one submit button' );
         }
-        bindNodeList( submits, [
-            [ 'click', ( event ) => { this.#event_submitClick( event, event.currentTarget ); } ],
-        ] );
+        this.bindSubmits( submits );
 
         // Form events
         this.addEventList( [
@@ -307,6 +298,37 @@ export class UiFormComponent extends UiComponent {
      */
     get valid() {
         return this.isValid( false );
+    }
+
+    /**
+     * Bind reset buttons
+     * @public
+     * @param {Array|NodeList} resets - List of reset buttons
+     * @return {void}
+     */
+    bindResets( resets ) {
+        if ( resets instanceof Array || resets instanceof NodeList && resets.length ) {
+            bindNodeList( resets, [
+                [ 'click', ( event ) => {
+                    event.preventDefault();
+                    this.reset( event.currentTarget.getAttribute( 'data-soft' ) === 'true' );
+                } ],
+            ] );
+        }
+    }
+
+    /**
+     * Bind list of submit buttons
+     * @public
+     * @param {Array|NodeList} submits List of submit buttons
+     * @return {void}
+     */
+    bindSubmits( submits ) {
+        if ( submits instanceof Array || submits instanceof NodeList && submits.length ) {
+            bindNodeList( submits, [
+                [ 'click', ( event ) => { this.#event_submitClick( event, event.currentTarget ); } ],
+            ] );
+        }
     }
 
     /**
