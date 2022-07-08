@@ -136,6 +136,8 @@ class UiFormComponent extends UiComponent {
   clickedSubmit : null|HTMLButtonElement
   init() {} // void
   bind() {} // void
+  bindResets( resets ) {} // void
+  bindSubmits( submits ) {} // void
   isValid( report = false ) {} // boolean
   canSubmit() {} // boolean
   submit( silent = false ) {} // boolean
