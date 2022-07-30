@@ -203,7 +203,7 @@ export class UiFormPluginReCaptcha extends UiPlugin {
             }
 
             // Fire interceptable load event
-            if ( !this.context.dispatch( 'recaptcha.load', { plugin : this }, true, true ) ) {
+            if ( !this.context.dispatchEvent( 'recaptcha.load', { plugin : this }, true, true ) ) {
                 if ( this.debug ) this.debug.log( this.constructor.name + '::callback_loader Cancelled by recaptcha.load event' );
                 return;
             }
@@ -232,7 +232,7 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      */
     #callback_setToken( token ) {
         if ( this.debug ) this.debug.log( this.constructor.name + '::callback_setToken', token );
-        if ( this.context.dispatch( 'recaptcha.token', { token : token, plugin : this }, true, true ) ) {
+        if ( this.context.dispatchEvent( 'recaptcha.token', { token : token, plugin : this }, true, true ) ) {
             this.context.submit();
         }
     }
