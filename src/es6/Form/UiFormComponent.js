@@ -249,6 +249,9 @@ export class UiFormComponent extends UiComponent {
      */
     #event_submit( event ) {
 
+        // TODO: check for no submit and if a submit button is focused within the form
+        // if ( !this.#clicked_submit && this.config.get( 'clickedSubmitDetect' ) ) {}
+
         // Cannot be submitted
         if ( !this.canSubmit( true ) ) {
             event.preventDefault();
@@ -499,6 +502,8 @@ export class UiFormComponent extends UiComponent {
         if ( !soft ) this.dom.reset();
         this.#clicked_submit = null;
         this.states.set( this.config.get( 'defaultState' ) );
+
+        // TODO: check cross browser consistency, firefox seems to reset the form on reset event.
         this.dispatchEvent( 'reset', { soft } );
     }
 }
