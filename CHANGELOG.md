@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.7
+ - Fixed *UiFormPluginReCaptcha* broken *dispatchEvent* method calls.
+
 ## 0.9.6
  - Added *UiFormComponent.bindSubmits()* and *UiFormComponent.bindResets()* to allow for manual binding of submit and reset buttons.
 
