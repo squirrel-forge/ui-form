@@ -167,7 +167,7 @@ export class UiFormPluginJSONResponse extends UiPlugin {
 
         // Info
         const has_prop = isPojo( data[ options.errors ] );
-        let is_empty = !has_prop || !Object.keys( data[ options.errors ].length );
+        let is_empty = !has_prop || !Object.keys( data[ options.errors ] ).length;
         if ( !has_prop ) data[ options.errors ] = {};
 
         // No error infos available
