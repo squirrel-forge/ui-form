@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.8
+ - Fixed *UiFormPluginJSONResponse* wrong bracketing causing exception for error property checks.
+
 ## 0.9.7
  - Fixed *UiFormPluginReCaptcha* broken *dispatchEvent* method calls.
 
