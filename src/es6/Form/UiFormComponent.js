@@ -482,12 +482,16 @@ export class UiFormComponent extends UiComponent {
     /**
      * Abort async submit
      * @public
+     * @param {boolean} reset - Reset from
+     * @param {boolean} soft - Only soft reset form
      * @return {void}
      */
-    abortSubmit() {
+    abortSubmit( reset = true, soft = true ) {
         if ( this.#request ) {
             this.#request.abort();
             this.#request = null;
+            this.dispatchEvent( 'submit.aborted' );
+            if ( reset ) this.reset( soft );
         }
     }
 
