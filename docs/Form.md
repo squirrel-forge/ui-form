@@ -6,9 +6,9 @@
 > [Table of contents](../README.md#table-of-contents) <[ Form ]> [Plugins](Plugins.md)
 
 ## Table of contents
- - [FormValues](#FormValues)
- - [Html5Validator](#Html5Validator)
- - [UiFormComponent](#UiFormComponent)
+ - [FormValues](#formvalues)
+ - [Html5Validator](#html5validator)
+ - [UiFormComponent](#uiformcomponent)
 
 ---
 
@@ -24,6 +24,7 @@ class FormValues {
   debug : null|Console
   form : HTMLFormElement
   includeDisabled : Boolean
+  setAsDefault : Boolean
   get( flat = false, selector = 'input, select, textarea' ) {} // Object
   set( values, flat = false, errors = true ) {} // void
   inputs( field, errors = true ) {} // Array|NodeList
@@ -53,7 +54,7 @@ For more details check the [Html5Validator source file](../src/es6/Form/Html5Val
 
 ### UiFormComponent
 UiFormComponent class - Async form component with events and plugins support.
-The component extends [UiComponent](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiComponent) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
+The component extends [UiComponent](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#uicomponent) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings might be changed or extended through plugins.
@@ -141,7 +142,7 @@ class UiFormComponent extends UiComponent {
   isValid( report = false ) {} // boolean
   canSubmit() {} // boolean
   submit( silent = false ) {} // boolean
-  abortSubmit() {} // void
+  abortSubmit( reset = true, soft = true ) {} // void
   reset( soft = false ) {} // void
 }
 ```

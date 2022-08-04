@@ -20,16 +20,16 @@ The documentation is also included in the package.
 Package contents listing by namespace.
 
  - [Form](docs/Form.md)
-   - [FormValues](docs/Form.md#FormValues)
-   - [Html5Validator](docs/Form.md#Html5Validator)
-   - [UiFormComponent](docs/Form.md#UiFormComponent)
+   - [FormValues](docs/Form.md#formvalues)
+   - [Html5Validator](docs/Form.md#html5validator)
+   - [UiFormComponent](docs/Form.md#uiformcomponent)
  - [Plugins](docs/Plugins.md)
-   - [UiFormPluginFieldControl](docs/Plugins.md#UiFormPluginFieldControl)
-   - [UiFormPluginJSONResponse](docs/Plugins.md#UiFormPluginJSONResponse)
-   - [UiFormPluginPrefetch](docs/Plugins.md#UiFormPluginPrefetch)
-   - [UiFormPluginReCaptcha](docs/Plugins.md#UiFormPluginReCaptcha)
-   - [UiFormPluginValidate](docs/Plugins.md#UiFormPluginValidate)
-   - [UiFormPluginValues](docs/Plugins.md#UiFormPluginValues)
+   - [UiFormPluginFieldControl](docs/Plugins.md#uiformpluginfieldcontrol)
+   - [UiFormPluginJSONResponse](docs/Plugins.md#uiformpluginjsonresponse)
+   - [UiFormPluginPrefetch](docs/Plugins.md#uiformpluginprefetch)
+   - [UiFormPluginReCaptcha](docs/Plugins.md#uiformpluginrecaptcha)
+   - [UiFormPluginValidate](docs/Plugins.md#uiformpluginvalidate)
+   - [UiFormPluginValues](docs/Plugins.md#uiformpluginvalues)
 
 ## Issues and docs
 If you encounter any issues, please report [here](https://github.com/squirrel-forge/ui-form/issues).

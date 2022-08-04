@@ -6,18 +6,18 @@
 > [Form](Form.md) <[ Plugins ]> [Table of contents](../README.md#table-of-contents)
 
 ## Table of contents
- - [UiFormPluginFieldControl](#UiFormPluginFieldControl)
- - [UiFormPluginJSONResponse](#UiFormPluginJSONResponse)
- - [UiFormPluginPrefetch](#UiFormPluginPrefetch)
- - [UiFormPluginReCaptcha](#UiFormPluginReCaptcha)
- - [UiFormPluginValidate](#UiFormPluginValidate)
- - [UiFormPluginValues](#UiFormPluginValues)
+ - [UiFormPluginFieldControl](#uiformpluginfieldcontrol)
+ - [UiFormPluginJSONResponse](#uiformpluginjsonresponse)
+ - [UiFormPluginPrefetch](#uiformpluginprefetch)
+ - [UiFormPluginReCaptcha](#uiformpluginrecaptcha)
+ - [UiFormPluginValidate](#uiformpluginvalidate)
+ - [UiFormPluginValues](#uiformpluginvalues)
 
 ---
 
 ### UiFormPluginFieldControl
 UiFormPluginFieldControl class - UiForm plugin for input states and errors.
-The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#uiplugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -216,7 +216,7 @@ class UiFormPluginFieldControl extends UiPlugin {
   static pluginName : String
   constructor( options, context, debug ) {}
   setObjectFieldError( errors, error, field = null, params = [] ) {} // void
-  submitDisable( state = true ) {} // void
+  submitDisable( state = true, only = null ) {} // void
   fieldSetState( element, state ) {} // HTMLElement
   fieldUnsetState( element, state ) {} // HTMLElement
   fieldIsState( element, state ) {} // boolean
@@ -296,7 +296,7 @@ therefore the inputs do not require individual outputs anymore, this can be tune
 
 ### UiFormPluginJSONResponse
 UiFormPluginJSONResponse class - UiForm plugin for easy JSON response handling.
-The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#uiplugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -348,7 +348,7 @@ For more details check the [UiFormPluginJSONResponse source file](../src/es6/Plu
 
 ### UiFormPluginPrefetch
 UiFormPluginPrefetch class - UiForm plugin for prefetching information or field values.
-The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#uiplugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 When using this plugin, make sure to load it before all others since it modifies the default event and state flow.
 
@@ -426,6 +426,7 @@ const extendConfig = {
 class UiFormPluginPrefetch extends UiPlugin {
   static pluginName : String
   constructor( options, context, debug ) {}
+  token : null|String
 }
 ```
 For more details check the [UiFormPluginPrefetch source file](../src/es6/Plugins/UiFormPluginPrefetch.js).
@@ -434,7 +435,7 @@ For more details check the [UiFormPluginPrefetch source file](../src/es6/Plugins
 
 ### UiFormPluginReCaptcha
 UiFormPluginReCaptcha class - UiForm plugin for google recaptcha integration.
-The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#uiplugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -484,13 +485,13 @@ const extendConfig = {
     // @type {Object}
     dom : {
 
+        // Recaptcha challenge input field name
+        // @type {string}
+        recaptchaChallengeField : '[name="g-recaptcha-response"]',
+
         // Recaptcha host element selector
         // @type {string}
         recaptchaHost : '[data-recaptcha-host]',
-
-        // Recaptcha submit button selector
-        // @type {string}
-        recaptchaSubmit : '[data-recaptcha-submit]',
 
         // Recaptcha script selector
         // @type {string}
@@ -512,7 +513,7 @@ For more details check the [UiFormPluginReCaptcha source file](../src/es6/Plugin
 
 ### UiFormPluginValidate
 UiFormPluginValidate class - UiForm plugin for input and form validation.
-The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#uiplugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -592,7 +593,7 @@ For more details check the [UiFormPluginValidate source file](../src/es6/Plugins
 
 ### UiFormPluginValues
 UiFormPluginValues class - UiForm plugin for input values handling.
-The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#UiPlugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
+The component extends [UiPlugin](https://github.com/squirrel-forge/ui-core/blob/main/docs/Abstracts.md#uiplugin) from [@squirrel-forge/ui-core](https://github.com/squirrel-forge/ui-core) module.
 
 #### Component settings
 Component settings are changed/extended as following.
@@ -602,7 +603,11 @@ const extendConfig = {
 
         // Enable input data change state
         // @type {boolean}
-        changeState : false
+        changeState : false,
+
+        // Set values as default values
+        // @type {boolean}
+        asDefault : true,
     },
 
     // Dom references
