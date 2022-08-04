@@ -52,7 +52,11 @@ export class UiFormPluginValues extends UiPlugin {
 
                 // Enable input data change state
                 // @type {boolean}
-                changeState : false
+                changeState : false,
+
+                // Set values as default values
+                // @type {boolean}
+                asDefault : true,
             },
 
             // Dom references
@@ -94,6 +98,7 @@ export class UiFormPluginValues extends UiPlugin {
 
         // Create form values instance
         this.#values = new FormValues( context.dom, false, this.debug );
+        this.#values.setAsDefault = this.context.config.get( 'values.asDefault' );
     }
 
     /**
