@@ -1,10 +1,21 @@
 # Changelog
 
+## 0.9.9
+ - Added *reset* and *soft* arguments to *abortSubmit* method, both default to *true*.
+ - Added *submit.aborted* event when using the *abortSubmit*, but is only fired if an actual request was aborted.
+ - Added *setAsDefault* boolean property to *FormValues* class, default is *true*.
+ - Added second argument *only* to *UiFormPluginFieldControl.disableSubmit()* method, can be *null* or an *Array* of submit buttons.
+ - Ensure that *UiFormPluginFieldControl.event_default()* is only called when the corresponding form is initialized.
+ - Added *FormValues.setValuesAsDefault* property, and updated setter methods to update values as default by default.
+ - Added *values.asDefault* option to *UiFormPluginValues* plugin.
+ - Updated *UiFormPluginReCaptcha* to allow for multiple submits, note that available options have changed.
+ - Added some todo notes.
+
 ## 0.9.8
  - Fixed *UiFormPluginJSONResponse* wrong bracketing causing exception for error property checks.
 
 ## 0.9.7
- - Fixed *UiFormPluginReCaptcha* broken *dispatchEvent* method calls.
+ - Fixed *UiFormPluginReCaptcha* broken *dispatchEvent()* method calls.
 
 ## 0.9.6
  - Added *UiFormComponent.bindSubmits()* and *UiFormComponent.bindResets()* to allow for manual binding of submit and reset buttons.
