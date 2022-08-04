@@ -28,6 +28,14 @@ export class UiFormPluginReCaptcha extends UiPlugin {
     }
 
     /**
+     * Last challende token generated
+     * @private
+     * @property
+     * @type {null|string}
+     */
+    #token = null;
+
+    /**
      * ReCaptcha host
      * @private
      * @property
@@ -87,13 +95,13 @@ export class UiFormPluginReCaptcha extends UiPlugin {
             // @type {Object}
             dom : {
 
+                // Recaptcha challenge input field name
+                // @type {string}
+                recaptchaChallengeField : '[name="g-recaptcha-response"]',
+
                 // Recaptcha host element selector
                 // @type {string}
                 recaptchaHost : '[data-recaptcha-host]',
-
-                // Recaptcha submit button selector
-                // @type {string}
-                recaptchaSubmit : '[data-recaptcha-submit]',
 
                 // Recaptcha script selector
                 // @type {string}
@@ -103,6 +111,7 @@ export class UiFormPluginReCaptcha extends UiPlugin {
 
         // Register events
         this.registerEvents = [
+            [ 'before.submit', ( event ) =>  { this.#event_beforeSubmit( event ); } ],
             [ 'reset', () =>  { this.#event_reset(); } ],
         ];
     }
@@ -129,11 +138,17 @@ export class UiFormPluginReCaptcha extends UiPlugin {
         // Set global recaptcha callback
         this.#register_globals( options );
 
-        // Bind submit button
-        this.#bind_submit();
-
         // Require the recaptcha script
         this.#require_script( options );
+    }
+
+    /**
+     * Challenge token getter
+     * @public
+     * @return {string|null} - Challenge token if available
+     */
+    get token() {
+        return this.#token;
     }
 
     /**
@@ -141,7 +156,29 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      * @return {void}
      */
     #event_reset() {
+        this.#token = null;
         if ( window.grecaptcha ) window.grecaptcha.reset();
+    }
+
+    /**
+     * Event before.submit
+     * @private
+     * @param {Event} event - Before submit event
+     * @return {void}
+     */
+    #event_beforeSubmit( event ) {
+
+        // If there is no token then we need fetch one first
+        if ( !this.#token ) {
+
+            // Execute on and prevent submit event
+            if ( window.grecaptcha ) {
+                event.preventDefault();
+                window.grecaptcha.execute();
+            } else {
+                throw new UiFormPluginReCaptchaException( 'Missing window.grecaptcha Object' );
+            }
+        }
     }
 
     /**
@@ -172,24 +209,6 @@ export class UiFormPluginReCaptcha extends UiPlugin {
     }
 
     /**
-     * Get marked or first submit
-     * @private
-     * @return {null|HTMLButtonElement} - Submit button
-     */
-    #get_submit() {
-        const submit = this.context.getDomRefs( 'recaptchaSubmit', false );
-        if ( submit ) return submit;
-        const fake = this.context.getDomRefs( 'fake', false );
-        const refs = this.context.getDomRefs( 'submit' );
-        for ( let i = 0; i < refs.length; i++ ) {
-            if ( refs[ i ] !== fake ) {
-                return refs[ i ];
-            }
-        }
-        return null;
-    }
-
-    /**
      * Callback for recaptcha script load
      * @private
      * @param {Object} options - Plugin options
@@ -197,20 +216,11 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      */
     #callback_loader( options ) {
         if ( window.grecaptcha ) {
-            const submit = this.#get_submit();
-            if ( !submit ) {
-                throw new UiFormPluginReCaptchaException( 'Requires a ReCaptcha marked submit button' );
-            }
 
             // Fire interceptable load event
             if ( !this.context.dispatchEvent( 'recaptcha.load', { plugin : this }, true, true ) ) {
                 if ( this.debug ) this.debug.log( this.constructor.name + '::callback_loader Cancelled by recaptcha.load event' );
                 return;
-            }
-
-            // Should not cause submit if in async mode, but allow setToken callback to submit when ready
-            if ( this.context.config.get( 'async' ) ) {
-                submit.type = 'button';
             }
 
             // Get options and render
@@ -232,6 +242,16 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      */
     #callback_setToken( token ) {
         if ( this.debug ) this.debug.log( this.constructor.name + '::callback_setToken', token );
+        this.#token = token;
+
+        /* TODO: check if required to set token manually
+        const inputs = this.context.getDomRefs( 'recaptchaChallengeField' );
+        if ( inputs.length ) {
+            for ( let i = 0; i < inputs.length; i++ ) {
+                inputs[ i ].setAttribute( 'value', token );
+            }
+        }
+        */
         if ( this.context.dispatchEvent( 'recaptcha.token', { token : token, plugin : this }, true, true ) ) {
             this.context.submit();
         }
@@ -267,36 +287,6 @@ export class UiFormPluginReCaptcha extends UiPlugin {
          * @return {void}
          */
         window[ options.setTokenName ] = ( token ) => { this.#callback_setToken( token, options ); };
-    }
-
-    /**
-     * Event submit click
-     * @private
-     * @return {void}
-     */
-    #event_submitClick() {
-        if ( window.grecaptcha ) {
-            if ( this.context.isValid( true ) ) {
-                window.grecaptcha.execute();
-            } else if ( this.debug ) {
-                this.debug.warn( this.constructor.name + '::event_submitClick Form data is invalid' );
-            }
-        } else {
-            throw new UiFormPluginReCaptchaException( 'Submit missing window.grecaptcha Object' );
-        }
-    }
-
-    /**
-     * Bind submit click
-     * @private
-     * @return {void}
-     */
-    #bind_submit() {
-        const submit = this.#get_submit();
-        if ( !submit ) {
-            throw new UiFormPluginReCaptchaException( 'Requires a ReCaptcha marked submit button' );
-        }
-        submit.addEventListener( 'click', () => { this.#event_submitClick(); } );
     }
 
     /**
