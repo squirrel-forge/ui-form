@@ -304,6 +304,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
      * @return {void}
      */
     #event_default( event ) {
+        if ( event.detail.target !== this.context ) return;
         this.#submit_disabled_state( event );
         this.#set_fields_initial_state( event );
     }
@@ -696,14 +697,15 @@ export class UiFormPluginFieldControl extends UiPlugin {
      * Set submit disabled
      * @public
      * @param {boolean} state - False to enable all submits
+     * @param {null|Array} only - Only change given submits
      * @return {void}
      */
-    submitDisable( state = true ) {
+    submitDisable( state = true, only = null ) {
         if ( this.debug ) this.debug.log( this.constructor.name + '::submitDisable', state ? 'Disabled' : 'Enabled' );
         const fake = this.context.getDomRefs( 'fake', false );
         const refs = this.context.getDomRefs( 'submit' );
         for ( let i = 0; i < refs.length; i++ ) {
-            if ( refs[ i ] !== fake ) {
+            if ( refs[ i ] !== fake && ( !only || only.includes( refs[ i ] ) ) ) {
                 refs[ i ].disabled = state;
                 if ( this.#states.has( 'submit.disabled' ) ) {
                     this.#states[ state ? 'set' : 'unset' ]( 'submit.disabled', refs[ i ] );
