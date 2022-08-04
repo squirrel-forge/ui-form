@@ -41,6 +41,14 @@ export class FormValues {
     #includeDisabled = false;
 
     /**
+     * Set values as default input values
+     * @private
+     * @property
+     * @type {boolean}
+     */
+    #setValuesAsDefault = true;
+
+    /**
      * Constructor
      * @constructor
      * @param {HTMLFormElement} form - Form element
@@ -78,6 +86,25 @@ export class FormValues {
      */
     get form() {
         return this.#form;
+    }
+
+    /**
+     * Set as default values getter
+     * @public
+     * @return {boolean} - True if values are set as default
+     */
+    get setAsDefault() {
+        return this.#setValuesAsDefault;
+    }
+
+    /**
+     * Set as default values setter
+     * @public
+     * @param {boolean} state - True to set as default values
+     * @return {void}
+     */
+    set setAsDefault( state ) {
+        this.#setValuesAsDefault = !!state;
     }
 
     /**
@@ -394,7 +421,11 @@ export class FormValues {
         // Handle select inputs with multiple array values
         if ( value instanceof Array && inputs.length === 1 && inputs[ 0 ].tagName.toLowerCase() === 'select' ) {
             for ( let i = 0; i < inputs[ 0 ].options.length; i++ ) {
-                inputs[ 0 ].options[ i ].selected = value.includes( inputs[ 0 ].options[ i ].value );
+                const is_selected = value.includes( inputs[ 0 ].options[ i ].value );
+                inputs[ 0 ].options[ i ].selected = is_selected;
+                if ( this.#setValuesAsDefault ) {
+                    inputs[ 0 ].options[ i ][ is_selected ? 'setAttribute' : 'removeAttribute' ]( 'selected', '' );
+                }
             }
             if ( this.#debug ) this.#debug.log( this.constructor.name + '::set_inputs_values > select.array.value', inputs[ 0 ], value );
             return;
@@ -415,7 +446,11 @@ export class FormValues {
                     } else {
 
                         // Set value property
-                        inputs[ i ].value = value;
+                        if ( this.#setValuesAsDefault ) {
+                            inputs[ i ].setAttribute( 'value', value );
+                        } else {
+                            inputs[ i ].value = value;
+                        }
                         if ( this.#debug ) {
                             this.#debug.log( this.constructor.name + '::set_inputs_values > array.value', inputs[ i ], value );
                         }
@@ -428,7 +463,11 @@ export class FormValues {
             } else {
 
                 // Set value property
-                inputs[ i ].value = value;
+                if ( this.#setValuesAsDefault ) {
+                    inputs[ i ].setAttribute( 'value', value );
+                } else {
+                    inputs[ i ].value = value;
+                }
                 if ( this.#debug ) this.#debug.log( this.constructor.name + '::set_inputs_values > value', inputs[ i ], value );
             }
         }
@@ -458,10 +497,17 @@ export class FormValues {
             if ( inputs[ i ].value === value[ i ]
                 || value[ i ] === true
                 ||  value[ i ] && value[ i ].toLowerCase && value[ i ].toLowerCase() === 'on'  ) {
-                inputs[ i ].checked = true;
+                if ( this.#setValuesAsDefault ) {
+                    inputs[ i ].setAttribute( 'checked', '' );
+                } else {
+                    inputs[ i ].checked = true;
+                }
                 set = true;
             } else if ( value[ i ] === null || value[ i ] === false ) {
                 inputs[ i ].checked = false;
+                if ( this.#setValuesAsDefault ) {
+                    inputs[ i ].removeAttribute( 'checked' );
+                }
                 set = true;
             }
             if ( set && this.#debug ) {
@@ -473,10 +519,17 @@ export class FormValues {
             let set = false;
             if ( value[ i ] === true
                 ||  value[ i ] && value[ i ].toLowerCase && value[ i ].toLowerCase() === 'on'  ) {
-                inputs[ i ].checked = true;
+                if ( this.#setValuesAsDefault ) {
+                    inputs[ i ].setAttribute( 'checked', '' );
+                } else {
+                    inputs[ i ].checked = true;
+                }
                 set = true;
             } else if ( value[ i ] === null || value[ i ] === false ) {
                 inputs[ i ].checked = false;
+                if ( this.#setValuesAsDefault ) {
+                    inputs[ i ].removeAttribute( 'checked' );
+                }
                 set = true;
             }
             if ( set && this.#debug ) {
