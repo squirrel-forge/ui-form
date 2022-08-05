@@ -397,8 +397,14 @@ export class UiFormComponent extends UiComponent {
             return;
         }
 
+        // Run preventable submit click event
+        if ( !this.dispatchEvent( 'submit.click', { event, button }, true, true ) ) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
         // Remember click target
-        this.#clicked_submit = button;
+        if ( this.getDomRefs( 'fake', false ) !== button ) this.#clicked_submit = button;
     }
 
     /**
