@@ -36,6 +36,14 @@ export class UiFormPluginReCaptcha extends UiPlugin {
     #token = null;
 
     /**
+     * Execute timeout
+     * @private
+     * @property
+     * @type {null|number}
+     */
+    #timeout = null;
+
+    /**
      * ReCaptcha host
      * @private
      * @property
@@ -89,6 +97,10 @@ export class UiFormPluginReCaptcha extends UiPlugin {
                 // Script marker attribute, used for dom.recaptchaScript selector
                 // @type {string}
                 scriptAttribute : 'data-recaptcha-script',
+
+                // Recaptcha execute method timeout
+                // @type {number}
+                executeTimeout : 120000,
             },
 
             // Dom references
@@ -109,9 +121,15 @@ export class UiFormPluginReCaptcha extends UiPlugin {
             },
         };
 
+        // Extend component states
+        this.extendStates = {
+            recaptchaLoading : { global : false, classOn : 'ui-form--recaptcha-loading' },
+            recaptchaError : { global : false, classOn : 'ui-form--recaptcha-error' },
+        };
+
         // Register events
         this.registerEvents = [
-            [ 'before.submit', ( event ) =>  { this.#event_beforeSubmit( event ); } ],
+            [ 'submit.click', ( event ) =>  { this.#event_submitClick( event ); } ],
             [ 'reset', () =>  { this.#event_reset(); } ],
         ];
     }
@@ -161,21 +179,35 @@ export class UiFormPluginReCaptcha extends UiPlugin {
     }
 
     /**
-     * Event before.submit
+     * Event submit.click
      * @private
-     * @param {Event} event - Before submit event
+     * @param {Event} event - Submit click event
      * @return {void}
      */
-    #event_beforeSubmit( event ) {
+    #event_submitClick( event ) {
 
         // If there is no token then we need fetch one first
         if ( !this.#token ) {
+            if ( this.context.states.is( 'recaptchaError' ) ) this.context.states.unset( 'recaptchaError' );
+            this.context.states.set( 'recaptchaLoading' );
 
-            // Execute on and prevent submit event
+            // Execute on and prevent submit event by preventing click and propagation
             if ( window.grecaptcha ) {
                 event.preventDefault();
+                event.stopPropagation();
                 window.grecaptcha.execute();
+
+                // Timeout error state
+                const options = this.context.config.get( 'recaptcha' );
+                if ( options.executeTimeout ) {
+                    this.#timeout = window.setTimeout( () => {
+                        this.context.states.unset( 'recaptchaLoading' );
+                        this.context.states.set( 'recaptchaError' );
+                        throw new UiFormPluginReCaptchaException( 'grecaptcha.execute() is very slow or timed out' );
+                    }, options.executeTimeout );
+                }
             } else {
+                this.context.states.set( 'recaptchaError' );
                 throw new UiFormPluginReCaptchaException( 'Missing window.grecaptcha Object' );
             }
         }
@@ -242,9 +274,13 @@ export class UiFormPluginReCaptcha extends UiPlugin {
      */
     #callback_setToken( token ) {
         if ( this.debug ) this.debug.log( this.constructor.name + '::callback_setToken', token );
+        if ( this.#timeout ) {
+            window.clearTimeout( this.#timeout );
+            this.#timeout = null;
+        }
         this.#token = token;
 
-        /* TODO: check if required to set token manually
+        /* TODO: set token for each form when using multiple forms?
         const inputs = this.context.getDomRefs( 'recaptchaChallengeField' );
         if ( inputs.length ) {
             for ( let i = 0; i < inputs.length; i++ ) {
@@ -252,6 +288,7 @@ export class UiFormPluginReCaptcha extends UiPlugin {
             }
         }
         */
+        this.context.states.unset( 'recaptchaLoading' );
         if ( this.context.dispatchEvent( 'recaptcha.token', { token : token, plugin : this }, true, true ) ) {
             this.context.submit();
         }
