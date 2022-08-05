@@ -426,7 +426,6 @@ const extendConfig = {
 class UiFormPluginPrefetch extends UiPlugin {
   static pluginName : String
   constructor( options, context, debug ) {}
-  token : null|String
 }
 ```
 For more details check the [UiFormPluginPrefetch source file](../src/es6/Plugins/UiFormPluginPrefetch.js).
@@ -479,6 +478,10 @@ const extendConfig = {
         // Script marker attribute, used for dom.recaptchaScript selector
         // @type {string}
         scriptAttribute : 'data-recaptcha-script',
+
+        // Recaptcha execute method timeout
+        // @type {number}
+        executeTimeout : 120000,
     },
 
     // Dom references
@@ -505,6 +508,7 @@ const extendConfig = {
 class UiFormPluginReCaptcha extends UiPlugin {
   static pluginName : String
   constructor( options, context, debug ) {}
+  token : null|String
 }
 ```
 For more details check the [UiFormPluginReCaptcha source file](../src/es6/Plugins/UiFormPluginReCaptcha.js).

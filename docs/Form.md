@@ -149,6 +149,7 @@ class UiFormComponent extends UiComponent {
 For more details check the [UiFormComponent source file](../src/es6/Form/UiFormComponent.js).
 
 #### Events
+ - **submit.click** - Fired after submit button click has validated the form, can be prevented with event.preventDefault() and form submission will not continue. 
  - **before.submit** - Fired before any data is sent, can be prevented with event.preventDefault(). You may also prevent submission by calling preventDefault() on the regular form submit event.
  - **async.modify** - Fired when the async request is ready to be sent, data can be modified, but the sending process cannot be aborted.
  - **sending** - Fired when form has started to send data.
