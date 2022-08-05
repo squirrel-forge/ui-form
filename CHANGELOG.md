@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.10
+ - Added *submit.click* event to *UiFormComponent*, fired when a submit button is clicked and the form is valid.
+ - Modified internal submit button click event to only record button if not submitted via fake submit/programmatically.
+ - Fixed *UiFormPluginReCaptcha* token submission and added *executeTimeout* option for error notification.
+ - Added *recaptchaLoading* and *recaptchaError* local states to *UiFormPluginReCaptcha* plugin extending form states.
+
 ## 0.9.9
  - Added *reset* and *soft* arguments to *abortSubmit* method, both default to *true*.
  - Added *submit.aborted* event when using the *abortSubmit*, but is only fired if an actual request was aborted.
