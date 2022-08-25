@@ -145,7 +145,7 @@ export class UiFormPluginReCaptcha extends UiPlugin {
         const options = this.context.config.get( 'recaptcha' );
 
         // Notify not running
-        if ( !options.sitekey ) {
+        if ( !options.sitekey || !options.sitekey.length ) {
             if ( this.debug ) this.debug.error( this.constructor.name + '::initComponent ReCaptcha requires a sitekey' );
             return;
         }
