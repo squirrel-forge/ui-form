@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.11
+ - Fixed *UiFormPluginReCaptcha* fixed condition for non blocking *no key available* error.
+ - Updated *UiFormComponent* *before.submit* event prevented debug message.
+
 ## 0.9.10
  - Added *submit.click* event to *UiFormComponent*, fired when a submit button is clicked and the form is valid.
  - Modified internal submit button click event to only record button if not submitted via fake submit/programmatically.
