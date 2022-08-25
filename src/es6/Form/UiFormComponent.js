@@ -265,7 +265,7 @@ export class UiFormComponent extends UiComponent {
         // Allow plugins and external handlers to prevent submission
         if ( !this.dispatchEvent( 'before.submit', event_data ) || event.defaultPrevented ) {
             if ( this.debug ) {
-                this.debug.log( this.constructor.name + '::event_submit default prevented via isValid method or before.submit event' );
+                this.debug.log( this.constructor.name + '::event_submit default prevented via before.submit event' );
             }
             return;
         }
