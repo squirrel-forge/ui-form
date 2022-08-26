@@ -468,7 +468,11 @@ export class FormValues {
 
                 // Set value property
                 if ( this.#setValuesAsDefault ) {
-                    inputs[ i ].setAttribute( 'value', value );
+                    if ( inputs[ i ].type === 'textarea' ) {
+                        inputs[ i ].innerText = value;
+                    } else {
+                        inputs[ i ].setAttribute( 'value', value );
+                    }
                 } else {
                     inputs[ i ].value = value;
                 }
