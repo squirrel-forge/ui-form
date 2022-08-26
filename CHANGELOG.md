@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.12
+ - Fixed *FormValues* not setting textarea value when using *FormValues.setAsDefault = true*.
+
 ## 0.9.11
  - Fixed *UiFormPluginReCaptcha* fixed condition for non blocking *no key available* error.
  - Updated *UiFormComponent* *before.submit* event prevented debug message.
