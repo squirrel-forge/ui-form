@@ -558,7 +558,7 @@ export class FormValues {
             switch ( input.type ) {
             case 'checkbox' :
             case 'radio' :
-                if ( !v || !v.length ) v = true;
+                if ( typeof v !== 'string' || v.toLowerCase() === 'on' || !v.length && !input.hasAttribute( 'value' ) ) v = true;
                 return input.checked ? v : null;
             case 'file' :
                 if ( input.files && input.files.length ) {
