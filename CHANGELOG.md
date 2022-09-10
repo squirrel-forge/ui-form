@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.13
+ - Fixed *FormValues.get_input_value()* for checkboxes and radios that have an explicit empty value attribute.
+
 ## 0.9.12
  - Fixed *FormValues* not setting textarea value when using *FormValues.setAsDefault = true*.
 
