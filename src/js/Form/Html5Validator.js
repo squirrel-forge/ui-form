@@ -2,6 +2,14 @@
  * Requires
  */
 import { Exception } from '@squirrel-forge/ui-util';
+import { FormValues } from './FormValues.js';
+
+/**
+ * @typedef {Function} HTML5FieldValidator
+ * @param {string} attr - Field validation attribute
+ * @param {HTMLInputElement|HTMLTextAreaElement} field - Field to be validated
+ * @return {null|string|string[]} - Null, override error or list of errors to append
+ */
 
 /**
  * Html5 validator exception
@@ -54,7 +62,23 @@ export class Html5Validator {
      * @property
      * @type {string}
      */
-    errorAttribute = 'data-html5-custom-error';
+    errorAttribute = 'data-html5-error';
+
+    /**
+     * Custom validation attribute name
+     * @public
+     * @property
+     * @type {string}
+     */
+    validateAttribute = 'data-html5-validate';
+
+    /**
+     * Custom field validator
+     * @public
+     * @property
+     * @type {null|HTML5FieldValidator}
+     */
+    validateField = null;
 
     /**
      * Constructor
@@ -69,16 +93,24 @@ export class Html5Validator {
         }
         this.#debug = debug;
         this.#form = form;
+        this.#fields = fields;
         if ( typeof fields === 'string' ) {
             fields = form.querySelectorAll( fields );
         }
         if ( !( fields instanceof NodeList || fields instanceof Array ) ) {
-            throw new Html5ValidatorException( 'Argument fields must be a string selector or a NodeList' );
+            throw new Html5ValidatorException( 'Argument fields must be a string selector, NodeList or an Array of Elements' );
+        }
+    }
+
+    #get_fields() {
+        let fields = this.#fields;
+        if ( typeof fields === 'string' ) {
+            fields = this.#form.querySelectorAll( fields );
         }
         if ( !fields.length ) {
             throw new Html5ValidatorException( 'Argument fields must resolve to at least one element' );
         }
-        this.#fields = fields;
+        return fields;
     }
 
     /**
@@ -88,14 +120,16 @@ export class Html5Validator {
      * @return {{valid: boolean, errors: {}}} - Status object
      */
     #validate( only ) {
+        const fields = this.#get_fields();
         const status = { valid : true, errors : {} };
-        for ( let i = 0; i < this.#fields.length; i++ ) {
-            const field = this.#fields[ i ];
-            const name = field.name;
+        for ( let i = 0; i < fields.length; i++ ) {
+            const field = fields[ i ];
+            const { name } = FormValues.input_info( field.name, null );
             if ( only === null || only === name || only instanceof Array && only.includes( name )  ) {
+                if ( this.#debug ) this.#debug.log( this.constructor.name + '::validate', name );
                 this.#validate_field( field, name, status );
-            } else if ( this.debug ) {
-                this.debug.log( this.constructor.name + '::validate Did not match criteria:', only, name, field );
+            } else if ( this.#debug ) {
+                this.#debug.log( this.constructor.name + '::validate Did not match criteria:', only, name, field );
             }
         }
         return status;
@@ -112,12 +146,19 @@ export class Html5Validator {
     #validate_field( field, name, status ) {
 
         // Validate the field and get the default message
-        let valid = field.checkValidity(), message = field.validationMessage;
+        let valid = field.checkValidity(),
+            message = field.validationMessage,
+            validator, custom_errors;
 
         // Radio groups must be validated as a group, or one might be valid while all others are not
         if ( field.type === 'radio' ) {
             const group = this.#form.querySelectorAll( '[name="' + field.getAttribute( 'name' ) + '"]' );
             message = group[ 0 ].validationMessage;
+
+            // Catch custom validation info from first element only
+            if ( group[ 0 ].hasAttribute( this.validateAttribute ) ) {
+                validator = group[ 0 ].getAttribute( this.validateAttribute );
+            }
             valid = false;
             for ( let i = 0; i < group.length; i++ ) {
                 if ( group[ i ].checkValidity() ) {
@@ -125,25 +166,61 @@ export class Html5Validator {
                     break;
                 }
             }
+        } else if ( field.hasAttribute( this.validateAttribute ) ) {
+
+            // If not a radio catch custom validation info if set
+            validator = field.getAttribute( this.validateAttribute );
         }
-        if ( !valid ) {
+
+        // Run the custom validation info
+        if ( validator ) custom_errors = this.#run_validator( validator, field );
+
+        // If not valid or has custom errors
+        if ( !valid || custom_errors ) {
             status.valid = false;
 
             // Allow multiple errors
             if ( !status.errors[ name ] ) status.errors[ name ] = [];
 
             // Get error message
-            if ( field.hasAttribute( this.errorAttribute ) ) {
+            if ( !valid && field.hasAttribute( this.errorAttribute ) ) {
                 message = field.getAttribute( this.errorAttribute );
+            }
+
+            // Custom errors string overrides any other error message
+            if ( typeof custom_errors === 'string' ) {
+                message = custom_errors;
             }
 
             // Append error message
             if ( message && message.length ) {
                 status.errors[ name ].push( message );
-            } else if ( this.debug ) {
-                this.debug.error( this.constructor.name + '::validate_field Could not resolve a valid error message:', name, field );
+            }
+
+            // Append any custom errors
+            if ( custom_errors instanceof Array && custom_errors.length ) {
+                status.errors[ name ].push( ...custom_errors );
             }
         }
+    }
+
+    /**
+     * Run custom validator
+     * @private
+     * @param {string} info - Attribute value
+     * @param {HTMLInputElement|HTMLTextAreaElement} field - Field element
+     * @return {string|string[]|null} - Null or error/s
+     */
+    #run_validator( info, field ) {
+        if ( this.#debug ) this.#debug.log( this.constructor.name + '::run_validator', info, field );
+        if ( this.validateField ) {
+            try {
+                return this.validateField( info, field );
+            } catch ( err ) {
+                throw new Html5ValidatorException( 'Field validator caused an error', err );
+            }
+        }
+        return null;
     }
 
     /**
@@ -171,6 +248,7 @@ export class Html5Validator {
      * @return {boolean} - Validation state
      */
     valid( only = null ) {
+        if ( this.#debug ) this.#debug.log( this.constructor.name + '::valid', only );
         const status = this.#validate( only );
         this.#errors = status.valid ? null : status.errors;
         return status.valid;
