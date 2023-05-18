@@ -1,8 +1,11 @@
 {
   "name": "@squirrel-forge/ui-form",
-  "version": "0.9.13",
+  "version": "0.10.0",
   "description": "An async Form component, event based with extensive plugin support, made for the browser and babel compatible.",
-  "main": "src/es6/index.js",
+  "main": "src/js/index.js",
+  "style": "src/css/module.min.css",
+  "sass": "src/scss/_index.scss",
+  "scss": "src/scss/_index.scss",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -31,9 +34,10 @@
   },
   "homepage": "https://github.com/squirrel-forge/ui-form#readme",
   "devDependencies": {
-    "@squirrel-forge/simple-webpack": "^0.9.x"
+    "@squirrel-forge/simple-webpack": "^0.12.x"
   },
   "dependencies": {
-    "@squirrel-forge/ui-core": "^0.10.x"
+    "@squirrel-forge/sass-util": "^0.9.x",
+    "@squirrel-forge/ui-core": "^0.11.x"
   }
 }
