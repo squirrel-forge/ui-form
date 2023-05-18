@@ -464,21 +464,43 @@ export class FormValues {
 
                 // Primitive value
                 this.#set_radio_checkbox_value( inputs, value, i, true );
+            } else if ( inputs[ i ].tagName.toLowerCase() === 'select' ) {
+
+                // Primitive value
+                this.#set_select_single_value( inputs, value, i );
             } else {
 
                 // Set value property
+                inputs[ i ].value = value;
                 if ( this.#setValuesAsDefault ) {
                     if ( inputs[ i ].type === 'textarea' ) {
                         inputs[ i ].innerText = value;
                     } else {
                         inputs[ i ].setAttribute( 'value', value );
                     }
-                } else {
-                    inputs[ i ].value = value;
                 }
                 if ( this.#debug ) this.#debug.log( this.constructor.name + '::set_inputs_values > value', inputs[ i ], value );
             }
         }
+    }
+
+    /**
+     * Set single select value
+     * @private
+     * @param {NodeList<HTMLInputElement>} inputs - Input elements
+     * @param {*|Array} value - Value
+     * @param {number} j - Position in array
+     * @return {void}
+     */
+    #set_select_single_value( inputs, value, j ) {
+        for ( let i = 0; i < inputs[ j ].options.length; i++ ) {
+            const is_selected = value === inputs[ j ].options[ i ].value;
+            inputs[ j ].options[ i ].selected = is_selected;
+            if ( this.#setValuesAsDefault ) {
+                inputs[ j ].options[ i ][ is_selected ? 'setAttribute' : 'removeAttribute' ]( 'selected', '' );
+            }
+        }
+        if ( this.#debug ) this.#debug.log( this.constructor.name + '::set_select_single_value > select.value', inputs[ j ], value );
     }
 
     /**
@@ -507,15 +529,14 @@ export class FormValues {
                 ||  value[ i ] && value[ i ].toLowerCase && value[ i ].toLowerCase() === 'on'  ) {
                 if ( this.#setValuesAsDefault ) {
                     inputs[ i ].setAttribute( 'checked', '' );
-                } else {
-                    inputs[ i ].checked = true;
                 }
+                inputs[ i ].checked = true;
                 set = true;
             } else if ( value[ i ] === null || value[ i ] === false ) {
-                inputs[ i ].checked = false;
                 if ( this.#setValuesAsDefault ) {
                     inputs[ i ].removeAttribute( 'checked' );
                 }
+                inputs[ i ].checked = false;
                 set = true;
             }
             if ( set && this.#debug ) {
@@ -529,15 +550,14 @@ export class FormValues {
                 ||  value[ i ] && value[ i ].toLowerCase && value[ i ].toLowerCase() === 'on'  ) {
                 if ( this.#setValuesAsDefault ) {
                     inputs[ i ].setAttribute( 'checked', '' );
-                } else {
-                    inputs[ i ].checked = true;
                 }
+                inputs[ i ].checked = true;
                 set = true;
             } else if ( value[ i ] === null || value[ i ] === false ) {
-                inputs[ i ].checked = false;
                 if ( this.#setValuesAsDefault ) {
                     inputs[ i ].removeAttribute( 'checked' );
                 }
+                inputs[ i ].checked = false;
                 set = true;
             }
             if ( set && this.#debug ) {
@@ -586,7 +606,7 @@ export class FormValues {
             for ( let i = 0; i < select.options.length; i++ ) {
                 const option = select.options[ i ];
                 if ( this.#includeDisabled || !option.disabled ) {
-                    if ( option.selected ) value.push( option.value || option.innerText );
+                    if ( option.selected ) value.push( option.hasAttribute( 'value' ) ? option.value : option.innerText );
                 }
             }
             if ( !select.multiple ) return value.shift();
