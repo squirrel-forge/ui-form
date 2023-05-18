@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.0
+ - Added *UiFormTemplate* for rendering forms.
+ - Added *UiFieldsetTemplate* for rendering fieldsets.
+ - Added *UiInputTemplate* for rendering inputs.
+ - Added sass modules for usage with the @use syntax.
+ - Improve *FormValues* value setting and getting and fixed set as default.
+ - Extend *Html5Validator* with some simple custom validation options and improve structure.
+ - Updated folder structure.
+
 ## 0.9.13
  - Fixed *FormValues.get_input_value()* for checkboxes and radios that have an explicit empty value attribute.
 
