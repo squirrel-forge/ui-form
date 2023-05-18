@@ -104,32 +104,32 @@ export class UiFormPluginFieldControl extends UiPlugin {
                 // @type {Object}
                 selectors : {
                     input : {
-                        state : '.input',
-                        error : '.input__error',
+                        state : '.ui-input',
+                        error : '.ui-input__error',
                     },
                     group : {
-                        state : '.input-group',
-                        error : '.input-group__error',
+                        state : '.ui-input-group',
+                        error : '.ui-input-group__error',
                     },
                 },
 
                 // Input states and relations
                 // @†ype {Object}
                 states : {
-                    'field.was.validated' : { classOn : 'input--was-validated' },
-                    'field.disabled' : { classOn : 'input--disabled' },
-                    'field.focus' : { classOn : 'input--focus', unsets : [ 'field.blur' ] },
-                    'field.blur' : { classOn : 'input--blur', unsets : [ 'field.focus' ] },
-                    'field.filled' : { classOn : 'input--filled', unsets : [ 'field.empty' ] },
-                    'field.empty' : { classOn : 'input--empty', unsets : [ 'field.filled' ] },
-                    'field.input' : { classOn : 'input--input', autoUnset : true },
-                    'field.change' : { classOn : 'input--change', autoUnset : true },
-                    'field.error' : { classOn : 'input--error' },
-                    'field.error.visible' : { classOn : 'input--error-visible' },
-                    'submit.disabled' : { classOn : 'button--disabled' },
-                    'group.disabled' : { classOn : 'input-group--disabled' },
-                    'group.error' : { classOn : 'input-group--error' },
-                    'group.error.visible' : { classOn : 'input-group--error-visible' },
+                    'field.was.validated' : { classOn : 'ui-input--was-validated' },
+                    'field.disabled' : { classOn : 'ui-input--disabled' },
+                    'field.focus' : { classOn : 'ui-input--focus', unsets : [ 'field.blur' ] },
+                    'field.blur' : { classOn : 'ui-input--blur', unsets : [ 'field.focus' ] },
+                    'field.filled' : { classOn : 'ui-input--filled', unsets : [ 'field.empty' ] },
+                    'field.empty' : { classOn : 'ui-input--empty', unsets : [ 'field.filled' ] },
+                    'field.input' : { classOn : 'ui-input--input', autoUnset : true },
+                    'field.change' : { classOn : 'ui-input--change', autoUnset : true },
+                    'field.error' : { classOn : 'ui-input--error' },
+                    'field.error.visible' : { classOn : 'ui-input--error-visible' },
+                    'submit.disabled' : { classOn : 'ui-button--disabled' },
+                    'group.disabled' : { classOn : 'ui-input-group--disabled' },
+                    'group.error' : { classOn : 'ui-input-group--error' },
+                    'group.error.visible' : { classOn : 'ui-input-group--error-visible' },
                 },
 
                 // TODO: Check since option does not seem respected in every case, make array of state names
@@ -148,7 +148,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     ready : '*',
                     focus : '*',
                     blur : '*',
-                    input : [ 'textarea-textarea', 'input-password', 'input-search', 'input-number', 'input-text', 'input-email', 'input-tel', 'input-url' ],
+                    input : [ 'textarea-textarea', 'input-password', 'input-search', 'input-number', 'input-text', 'input-email', 'input-tel', 'input-url', 'input-range', 'input-color' ],
                     change : [ 'select-select-one', 'select-select-multiple', 'input-checkbox', 'input-file', 'input-radio', 'input-range', 'input-date', 'input-color', 'input-time' ],
                 },
 
@@ -505,7 +505,9 @@ export class UiFormPluginFieldControl extends UiPlugin {
         // Check for validation events
         const events = Object.keys( options.eventReporting );
         if ( events.includes( event.type ) ) {
-            this.fieldIsValid( element, options.eventReporting[ event.type ] );
+            if ( this.fieldIsValid( element, options.eventReporting[ event.type ] ) ) {
+                this.clearFieldErrors( element );
+            }
         }
     }
 
@@ -969,7 +971,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
      * Show field errors
      * @public
      * @param {string} field - Field name
-     * @param {Object} errors - Errors object
+     * @param {string|Array<string>} errors - Errors object
      * @param {null|boolean} onlyState - Only set state
      * @return {void}
      */

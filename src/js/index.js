@@ -1,6 +1,6 @@
 /* !
  * @module      : @squirrel-forge/ui-form
- * @version     : 0.9.13
+ * @version     : 0.10.0
  * @license     : MIT
  * @copyright   : 2022 squirrel-forge
  * @author      : Daniel Hartwell aka. siux <me@siux.info>
@@ -13,6 +13,14 @@
 export { FormValues } from './Form/FormValues.js';
 export { Html5Validator } from './Form/Html5Validator.js';
 export { UiFormComponent } from './Form/UiFormComponent.js';
+export { UiFieldsetTemplate } from './Form/UiFieldsetTemplate.js';
+export { UiFormTemplate } from './Form/UiFormTemplate.js';
+
+/**
+ * Input
+ */
+export { UiInputTemplate } from './Input/UiInputTemplate.js';
+export { UiRotateComponent } from './Input/UiRotateComponent.js';
 
 /**
  * Plugins

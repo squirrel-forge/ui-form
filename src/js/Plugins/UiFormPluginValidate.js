@@ -80,8 +80,8 @@ export class UiFormPluginValidate extends UiPlugin {
                 // Input states and relations
                 // @†ype {Object}
                 states : {
-                    'field.valid' : { classOn : 'input--valid', unsets : [ 'field.invalid' ] },
-                    'field.invalid' : { classOn : 'input--invalid', unsets : [ 'field.valid' ] },
+                    'field.valid' : { classOn : 'ui-input--valid', unsets : [ 'field.invalid' ] },
+                    'field.invalid' : { classOn : 'ui-input--invalid', unsets : [ 'field.valid' ] },
                 },
 
                 // Validation options
@@ -200,6 +200,9 @@ export class UiFormPluginValidate extends UiPlugin {
      * @return {boolean} - Validation result
      */
     validateForm( report = 'error' ) {
+
+        // clearAllFieldsErrors( error = true, visibility = true, only = null )
+        this.context.plugins.run( 'clearAllFieldsErrors', [ true, true, null ] );
         const valid = this.#validate();
 
         // Event data
@@ -216,7 +219,7 @@ export class UiFormPluginValidate extends UiPlugin {
             // Set field errors/states
             const fields = this.context.getDomRefs( 'fields' );
             for ( let i = 0; i < fields.length; i++ ) {
-                this.validateField( fields[ i ], report );
+                this.validateField( fields[ i ], report, true );
             }
 
             // Use fields error display and state
@@ -230,10 +233,14 @@ export class UiFormPluginValidate extends UiPlugin {
     /**
      * Validate field
      * @param {string|HTMLElement} input - Input name or element
-     * @param {boolean|'state'|'error'} report - Report level
+     * @param {boolean|'state'|'error'} report - Report level+
+     * @param {boolean} noClear - Do not clear error state/visibility
      * @return {boolean} - Validation result
      */
-    validateField( input, report = 'error' ) {
+    validateField( input, report = 'error', noClear= false ) {
+
+        // clearFieldErrors( input, error = true, visibility = true )
+        if ( !noClear ) this.context.plugins.run( 'clearFieldErrors', [ input, true, true ] );
 
         // Event data
         const field = this.#get_field_name( input );
