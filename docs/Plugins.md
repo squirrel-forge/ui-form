@@ -229,7 +229,7 @@ class UiFormPluginFieldControl extends UiPlugin {
   fieldHasErrors( field ) {} // boolean
 }
 ```
-For more details check the [UiFormPluginFieldControl source file](../src/es6/Plugins/UiFormPluginFieldControl.js).
+For more details check the [UiFormPluginFieldControl source file](../src/js/Plugins/UiFormPluginFieldControl.js).
 
 #### Fields markup
 The default fields markup, representing the element structure, classes and relationships can be modified using the settings:
@@ -342,7 +342,7 @@ class UiFormPluginJSONResponse extends UiPlugin {
   constructor( options, context, debug ) {}
 }
 ```
-For more details check the [UiFormPluginJSONResponse source file](../src/es6/Plugins/UiFormPluginJSONResponse.js).
+For more details check the [UiFormPluginJSONResponse source file](../src/js/Plugins/UiFormPluginJSONResponse.js).
 
 ---
 
@@ -428,7 +428,7 @@ class UiFormPluginPrefetch extends UiPlugin {
   constructor( options, context, debug ) {}
 }
 ```
-For more details check the [UiFormPluginPrefetch source file](../src/es6/Plugins/UiFormPluginPrefetch.js).
+For more details check the [UiFormPluginPrefetch source file](../src/js/Plugins/UiFormPluginPrefetch.js).
 
 ---
 
@@ -511,7 +511,7 @@ class UiFormPluginReCaptcha extends UiPlugin {
   token : null|String
 }
 ```
-For more details check the [UiFormPluginReCaptcha source file](../src/es6/Plugins/UiFormPluginReCaptcha.js).
+For more details check the [UiFormPluginReCaptcha source file](../src/js/Plugins/UiFormPluginReCaptcha.js).
 
 ---
 
@@ -591,7 +591,7 @@ class UiFormPluginValidate extends UiPlugin {
   lastErrors() {} // null|Object
 }
 ```
-For more details check the [UiFormPluginValidate source file](../src/es6/Plugins/UiFormPluginValidate.js).
+For more details check the [UiFormPluginValidate source file](../src/js/Plugins/UiFormPluginValidate.js).
 
 ---
 
@@ -639,7 +639,7 @@ class UiFormPluginValues extends UiPlugin {
   setValues( values, flat = false ) {} // void
 }
 ```
-For more details check the [UiFormPluginValues source file](../src/es6/Plugins/UiFormPluginValues.js).
+For more details check the [UiFormPluginValues source file](../src/js/Plugins/UiFormPluginValues.js).
 
 ---
 

@@ -30,7 +30,7 @@ class FormValues {
   inputs( field, errors = true ) {} // Array|NodeList
 }
 ```
-For more details check the [FormValues source file](../src/es6/Form/FormValues.js).
+For more details check the [FormValues source file](../src/js/Form/FormValues.js).
 
 ---
 
@@ -48,7 +48,7 @@ class Html5Validator {
   errors() {} // null|Object
 }
 ```
-For more details check the [Html5Validator source file](../src/es6/Form/Html5Validator.js).
+For more details check the [Html5Validator source file](../src/js/Form/Html5Validator.js).
 
 ---
 
@@ -146,7 +146,7 @@ class UiFormComponent extends UiComponent {
   reset( soft = false ) {} // void
 }
 ```
-For more details check the [UiFormComponent source file](../src/es6/Form/UiFormComponent.js).
+For more details check the [UiFormComponent source file](../src/js/Form/UiFormComponent.js).
 
 #### Events
  - **submit.click** - Fired after submit button click has validated the form, can be prevented with event.preventDefault() and form submission will not continue. 
