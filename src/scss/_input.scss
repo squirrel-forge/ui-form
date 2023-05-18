@@ -1,0 +1,532 @@
+/**
+ * ui-input
+ *  Custom properties and styles with configuration.
+ */
+
+/**
+ * Requires
+ */
+@use 'sass:meta';
+@use '~@squirrel-forge/sass-util/abstract';
+@use '~@squirrel-forge/sass-util/mixins';
+
+/**
+ * Component css class
+ * @protected
+ * @type {string} css class
+ */
+$class: 'ui-input' !default;
+
+/**
+ * Component property prefix
+ * @protected
+ * @type {string} property name
+ */
+$props: 'ui-input-' !default;
+
+/**
+ * Config defaults
+ * @private
+ * @type {map}
+ */
+$-config: (
+  margin : 0.25em auto,
+  margin-inline : 0.25em,
+  width : min-content,
+  input-min-width : 2em,
+  reduced-number-min-width : 1em,
+  label-padding : 0 0.25em 0.25em,
+  label-padding-horizontal : 0.25em,
+  input-padding : 0.35em 0.25em,
+  input-border-width : 1px,
+  input-border-style : solid,
+  input-border-color : currentColor,
+  input-border-radius : 0.2em,
+  input-background-color : white,
+  input-number-min-width : .5em,
+  disabled-input-border-color : currentColor,
+  disabled-input-background-color : whitesmoke,
+  error-input-border-color : crimson,
+  error-input-background-color : lavenderblush,
+  spaced-input-max-width: 12em,
+  transition: 0.3s ease,
+);
+
+/**
+ * Update component config options
+ * @public
+ * @param {map} $options - Map of config options
+ * @output {void} - Only sets config options
+ */
+@mixin config($options) {
+  $-config: abstract.config($options, $-config, 'ui-input.config::') !global;
+}
+
+/**
+ * Generate required custom properties
+ * @public
+ * @param {null|map} $extend - Extend properties for output only
+ * @output Adds components custom properties in current scope
+ */
+@mixin properties($extend: null) {
+  $render: abstract.merge-optional($-config, $extend);
+  @include mixins.properties($render, $props, '_at_', 'ui-input.properties::');
+}
+
+/**
+ * Generate component styles
+ * @public
+ * @content Allows for class custom styles after all other declarations
+ * @output Outputs configured component styles
+ */
+@mixin styles() {
+  .#{$class} {
+    position: relative;
+    margin: var(--#{$props}margin);
+    margin-inline: var(--#{$props}margin-inline);
+    width: var(--#{$props}width);
+    display: flex;
+    flex-wrap: wrap;
+    transition: var(--#{$props}transition);
+
+    input, select, textarea {
+      &[readonly],
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="range"],
+    input[type="date"],
+    input[type="search"],
+    input[type="number"],
+    input[type="color"],
+    input[type="url"],
+    textarea, select {
+      min-width: var(--#{$props}input-min-width);
+      width: 100%;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      @include mixins.hide-accessible;
+    }
+
+    input[type="number"] {
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        margin: 0 0 0 0.25em;
+      }
+
+      &[data-reduced] {
+        min-width: var(--#{$props}reduced-number-min-width);
+      }
+
+
+      &[data-no-spin],
+      &:disabled,
+      &[readonly] {
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+      }
+    }
+    input {
+      &[data-no-pick] {
+        &::-webkit-calendar-picker-indicator {
+          display: none !important;
+        }
+      }
+    }
+
+    &__label {
+      display: block;
+      padding: var(--#{$props}label-padding);
+      width: 100%;
+    }
+
+    &__input {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      padding: var(--#{$props}input-padding);
+      background-color: var(--#{$props}input-background-color);
+      border: var(--#{$props}input-border-width) var(--#{$props}input-border-style) var(--#{$props}input-border-color);
+      border-radius: var(--#{$props}input-border-radius);
+      transition: var(--#{$props}transition);
+    }
+
+    &__pseudo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &--horizontal {
+      align-items: center;
+      flex-wrap: nowrap;
+
+      .#{$class} {
+        &__label {
+          padding: var(--#{$props}label-padding-horizontal);
+          width: auto;
+          white-space: nowrap;
+
+          & + .#{$class}__input {
+            margin-inline-start: 0.25rem;
+          }
+        }
+        &__input {
+          & + .#{$class}__label {
+            margin-inline-start: 0.25rem;
+          }
+        }
+      }
+    }
+
+    &--spaced {
+      .#{$class} {
+        &__label {
+          & + .#{$class}__input {
+            margin: auto 0 auto auto;
+          }
+        }
+        &__input {
+          max-width: var(--#{$props}spaced-input-max-width);
+
+          & + .#{$class}__label {
+            margin: auto auto auto 0;
+          }
+        }
+      }
+    }
+
+    &--no-label-break {
+      .#{$class} {
+        &__label {
+          white-space: nowrap;
+        }
+      }
+    }
+
+    &--grow {
+      flex-grow: 1;
+
+      &-more {
+        flex-grow: 10;
+      }
+      &-most {
+        flex-grow: 100;
+      }
+    }
+
+    &--input-align-right {
+      input, select, textarea {
+        text-align: right;
+      }
+    }
+
+    &--color {
+      --ui-input-spaced-input-max-width: 3em;
+
+      input[type="color"] {
+        display: block;
+        width: 100%;
+        height: 1.75em;
+        margin: -0.3125em 0;
+      }
+    }
+
+    &--text {
+      input {
+        text-overflow: ellipsis;
+      }
+    }
+
+    &--select {
+      width: fit-content;
+
+      select {
+        margin: -0.0625em 0;
+      }
+    }
+
+    &--textarea {
+      textarea {
+        width: 100%;
+      }
+    }
+
+    &--number,
+    &--min {
+      &-3chars {
+        --#{$props}input-min-width : calc(var(--#{$props}input-number-min-width) * 5);
+      }
+      &-4chars {
+        --#{$props}input-min-width : calc(var(--#{$props}input-number-min-width) * 6);
+      }
+      &-5chars {
+        --#{$props}input-min-width : calc(var(--#{$props}input-number-min-width) * 7);
+      }
+      &-6chars {
+        --#{$props}input-min-width : calc(var(--#{$props}input-number-min-width) * 8);
+      }
+      &-7chars {
+        --#{$props}input-min-width : calc(var(--#{$props}input-number-min-width) * 9);
+      }
+      &-8chars {
+        --#{$props}input-min-width : calc(var(--#{$props}input-number-min-width) * 10);
+      }
+    }
+
+    &--checkbox,
+    &--radio {
+      .#{$class} {
+        &__input {
+          margin-top: 0.225rem;
+          margin-bottom: 0.225rem;
+          padding: 0;
+          width: auto;
+          background-color: transparent;
+          border: none;
+        }
+        &__pseudo {
+          cursor: pointer;
+        }
+      }
+      input + .#{$class}__pseudo .ui-icon {
+        opacity: 0;
+      }
+      input:checked + .#{$class}__pseudo .ui-icon {
+        opacity: 1;
+      }
+    }
+
+    &--checkbox {
+      .#{$class} {
+        &__pseudo {
+          width: 1.6em;
+          height: 1.6em;
+          background-color: var(--#{$props}input-background-color);
+          border: var(--#{$props}input-border-width) var(--#{$props}input-border-style) var(--#{$props}input-border-color);
+          border-radius: var(--#{$props}input-border-radius);
+        }
+      }
+    }
+
+    &--range {
+      .#{$class} {
+        &__input {
+          background-color: transparent;
+          border-color: transparent;
+        }
+      }
+    }
+
+    &--label-hidden {
+      .#{$class} {
+        &__label {
+          @include mixins.hide-accessible;
+        }
+      }
+    }
+
+    &--readonly,
+    &--disabled {
+      cursor: not-allowed;
+      --#{$props}input-border-color: var(--#{$props}disabled-input-border-color);
+      --#{$props}input-background-color: var(--#{$props}disabled-input-background-color);
+    }
+
+    // Only the input gets hidden,
+    // can be used for hidden fields with error display and or label
+    &--hidden {
+      .#{$class} {
+        &__input {
+          display: none;
+        }
+      }
+    }
+
+    // Hide everything
+    &--invisible {
+      display: none;
+    }
+
+    &__error {
+      pointer-events: none;
+      z-index: 1;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      font-style: normal;
+      font-size: 80%;
+      color: white;
+      background: crimson;
+      border-radius: 0.2em;
+      width: max-content;
+      min-width: 1em;
+      max-width: 100%;
+      min-height: 0;
+      padding: 0.25em;
+      margin: 0;
+      opacity: 0;
+      transform: translate(0, 0);
+      transition: 0.3s ease;
+
+      &::before {
+        pointer-events: none;
+        position: absolute;
+        top: -0.25em;
+        left: 0.5em;
+        width: 0;
+        height: 0;
+        border-left: 0.25em solid transparent;
+        border-right: 0.25em solid transparent;
+        border-bottom: 0.25em solid crimson;
+        content: '';
+        opacity: 0;
+        transition: 0.3s ease;
+      }
+    }
+
+    /*
+    &--valid {
+      input, textarea, select {
+        border-color: lime;
+      }
+    }
+
+    &--invalid {
+      input, textarea, select {
+        border-color: darkorange;
+      }
+    }
+    */
+
+    &--error {
+      --#{$props}input-border-color: var(--#{$props}error-input-border-color);
+      --#{$props}input-background-color: var(--#{$props}error-input-background-color);
+    }
+
+    &--error-visible {
+      .#{$class}__error {
+        min-width: 6em;
+        min-height: 2em;
+        opacity: 1;
+        transform: translate(0, 100%);
+
+        &::before {
+          opacity: 1;
+        }
+      }
+    }
+
+    /*
+    &--hidden {
+      width: 100%;
+
+      .input__error {
+        z-index: 1;
+        margin: auto;
+
+        &::before {
+          margin-left: -0.25rem;
+          top: auto;
+          bottom: -0.25rem;
+          left: 50%;
+          width: 0;
+          height: 0;
+          border-top: 0.25rem solid crimson;
+          border-left: 0.25rem solid transparent;
+          border-right: 0.25rem solid transparent;
+          border-bottom: none;
+        }
+      }
+    }
+
+    &--empty {
+      input, textarea, select {
+        background-color: white;
+      }
+    }
+
+    &--filled {
+      input, textarea, select {
+        background-color: lightcyan;
+      }
+    }
+
+    &--input {
+      input, textarea, select {
+        background-color: lightblue;
+      }
+    }
+
+    &--change {
+      input, textarea, select {
+        background-color: lightsalmon;
+      }
+    }
+
+    &--radio,
+    &--checkbox {
+      display: inline-block;
+    }
+
+    &--select {
+      &-one {}
+      &-multiple {
+        .input__label {
+          display: block;
+        }
+      }
+    }
+
+    &--textarea {
+      width: 100%;
+
+      textarea {
+        width: 100%;
+      }
+
+      .input__label {
+        display: block;
+      }
+    }
+    */
+
+    &--25 {
+      width: calc(100% / 4 - 0.5em);
+    }
+    &--33 {
+      width: calc(100% / 3 - 0.5em);
+    }
+    &--50 {
+      width: calc(100% / 2 - 0.5em);
+    }
+    &--66 {
+      width: calc(100% / 3 * 2 - 0.5em);
+    }
+    &--75 {
+      width: calc(100% / 4 * 3 - 0.5em);
+    }
+    &--wide {
+      width: 100%;
+    }
+
+    &-spacer {
+      width: 100%;
+    }
+
+    // Allow custom override styles
+    @if meta.content-exists() {
+      @content;
+    }
+  }
+}

@@ -1,0 +1,203 @@
+/**
+ * ui-fieldset
+ *  Custom properties and styles with configuration.
+ */
+
+/**
+ * Requires
+ */
+@use 'sass:meta';
+@use '~@squirrel-forge/sass-util/abstract';
+@use '~@squirrel-forge/sass-util/mixins';
+@use '~@squirrel-forge/sass-util/media';
+
+/**
+ * Component css class
+ * @protected
+ * @type {string} css class
+ */
+$class: 'ui-fieldset' !default;
+
+/**
+ * Wrapper css class
+ * @protected
+ * @type {string} css class
+ */
+$wrap-class: 'ui-wrap' !default;
+
+/**
+ * Component property prefix
+ * @protected
+ * @type {string} property name
+ */
+$props: 'ui-fieldset-' !default;
+
+/**
+ * Config defaults
+ * @private
+ * @type {map}
+ */
+$-config: (
+
+  // Default margin
+  // @type {list<number>} 1-4 margin values
+  margin: 0,
+
+  // Default padding
+  // @type {list<number>} 1-4 padding values
+  padding: 0.5rem,
+
+  // Default border
+  // @type {border} border definition
+  border: 0,
+
+  // Legend to wrapper offset when using content mode
+  // @type {number} size value
+  legend-offset: 0.75rem,
+
+  // Legend padding
+  // @type {list<number>} 1-4 padding values
+  legend-padding: 0.25rem 0.5rem,
+
+  // Default width
+  // @type {number} width value
+  width: 100%,
+
+  // Toggleable hidden width
+  // @type {number} width value
+  toggle-width: auto,
+
+  // Background color
+  // @type {color} color value
+  background-color: lightblue,
+
+  // Legend background color
+  // @type {color} color value
+  legend-background-color: lightsteelblue,
+);
+
+/**
+ * Update component config options
+ * @public
+ * @param {map} $options - Map of config options
+ * @output {void} - Only sets config options
+ */
+@mixin config($options) {
+  $-config: abstract.config($options, $-config, 'ui-fieldset.config::') !global;
+}
+
+/**
+ * Generate required custom properties
+ * @public
+ * @param {null|map} $extend - Extend properties for output only
+ * @output Adds components custom properties in current scope
+ */
+@mixin properties($extend: null) {
+  $render: abstract.merge-optional($-config, $extend);
+  @include mixins.properties($render, $props, '_at_', 'ui-fieldset.properties::');
+}
+
+/**
+ * Generate component styles
+ * @public
+ * @content Allows for class custom styles after all other declarations
+ * @output Outputs configured component styles
+ */
+@mixin styles() {
+  .#{$class} {
+    margin: var(--#{$props}margin);
+    padding: var(--#{$props}padding);
+    width: var(--#{$props}width);
+    background-color: var(--#{$props}background-color);
+    border: var(--#{$props}border);
+
+    &__legend {
+      margin: 0;
+      padding: var(--#{$props}legend-padding);
+      background-color: var(--#{$props}legend-background-color);
+    }
+
+    &--legend {
+      &:not(.#{$class}--legend-contents) {
+        margin-top: var(--#{$props}legend-offset);
+      }
+
+      &-contents {
+        .#{$class}__legend {
+          display: contents;
+
+          & + .#{$wrap-class}--fieldset {
+            margin-top: var(--#{$props}legend-offset);
+          }
+        }
+      }
+    }
+
+    &__content {
+      width: 100%;
+    }
+
+    &__required {
+      width: 100%;
+
+      em::before {
+        content: '*';
+      }
+    }
+
+    &--toggleable {
+
+      .#{$class}__legend {
+        cursor: pointer;
+      }
+      &.#{$class}--content-hidden {
+        cursor: pointer;
+        &:not(.#{$class}--toggleable-wide) {
+          margin-inline-end: 0.5rem;
+          width: var(--#{$props}toggle-width);
+        }
+
+        &::after {
+          display: block;
+          padding: 0 0.25rem;
+          content: attr(data-hidden-text);
+        }
+        &:hover::after {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    &--small {
+      @include media.query('tablet-desktop') {
+        --#{$props}width: calc(50% - var(--#{$props}legend-offset));
+      }
+    }
+
+    /*
+
+    &--horizontal {
+      .ui-wrap--fieldset {
+        flex-direction: row;
+      }
+    }
+    &--spaced {
+      .ui-wrap--fieldset {
+        justify-content: space-between;
+      }
+    }
+
+    &.input-group {
+      .ui-wrap--fieldset {
+        display: block;
+      }
+    }
+
+    */
+
+    // Allow custom override styles
+    @if meta.content-exists() {
+      @content;
+    }
+  }
+}
