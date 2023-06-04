@@ -17,6 +17,7 @@ class UiFieldsetTemplateException extends Exception {}
  * @typedef {Object} UiFieldsetTemplateData
  * @property {null|string} legend - Fieldset legend
  * @property {null|string} contentBefore - Fieldset content before rows
+ * @property {null|string} content - Fieldset content
  * @property {null|string} contentAfter - Fieldset content after rows
  * @property {null|string} required - Fieldset required notice
  * @property {null|Array<string>} classes - List of fieldset classes
@@ -42,6 +43,7 @@ export class UiFieldsetTemplate extends UiTemplate {
     _defaults = {
         legend : null,
         contentBefore : null,
+        content : null,
         contentAfter : null,
         required : null,
         classes : [],
@@ -59,10 +61,11 @@ export class UiFieldsetTemplate extends UiTemplate {
      */
     _validate( data ) {
         const contentBefore = typeof data.contentBefore === 'string' && data.contentBefore.length;
+        const content = typeof data.content === 'string' && data.content.length;
         const contentAfter = typeof data.contentAfter === 'string' && data.contentAfter.length;
         const rows = !!data.rows.length;
-        if ( !contentBefore && !contentAfter && !rows ) {
-            throw new UiFieldsetTemplateException( 'Requires content before/after or rows' );
+        if ( !contentBefore && !content && !contentAfter && !rows ) {
+            throw new UiFieldsetTemplateException( 'Requires content, before/after or rows' );
         }
     }
 
@@ -107,6 +110,7 @@ export class UiFieldsetTemplate extends UiTemplate {
             '<div class="ui-fieldset__content">' +
                 `<${wrapper_tag} class="${wrapper.join( ' ' )}">` +
                     ( data.contentBefore ?? '' ) +
+                    ( data.content ?? '' ) +
                     ( content.length ? content.join( '' ) : '' ) +
                     ( data.contentAfter ?? '' ) +
                     ( required ? required : '' ) +
