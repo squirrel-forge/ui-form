@@ -77,11 +77,11 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
                     // Disable submit on events
                     // @type {Array<string>}
-                    disableOn : [ 'loading', 'sending', 'success' ],
+                    disableOn : [ 'form.loading', 'form.sending', 'form.success' ],
 
                     // Enable submit on events
                     // @type {Array<string>}
-                    enableOn : [ 'default', 'reset' ],
+                    enableOn : [ 'default', 'form.reset' ],
 
                     // Show disabled error
                     // @type {boolean}
@@ -160,6 +160,10 @@ export class UiFormPluginFieldControl extends UiPlugin {
                     // @type {string}
                     global : 'general',
 
+                    // Map unknown field errors to global field
+                    // @type {string}
+                    mapUnknown2Global : true,
+
                     // Only set error state
                     // @type {boolean}
                     onlyState : false,
@@ -215,7 +219,7 @@ export class UiFormPluginFieldControl extends UiPlugin {
 
                     // Attribute name for field individual error selector
                     // @†ype {string}
-                    attrErrorSelector : 'data-error-selector',
+                    attrErrorSelector : 'data-ui-form-input-error-selector',
 
                     // Scroll to first error with scrollIntoView or custom callback
                     // @type {boolean|Function}
@@ -247,15 +251,18 @@ export class UiFormPluginFieldControl extends UiPlugin {
      */
     initComponent( context ) {
 
+        // Event prefix
+        const prefix = ( this.context.config.get( 'eventPrefix' ) || '' );
+
         // Register events
         //  Must be defined here since the defaultEvent might be modified during init by other plugins
         this.registerEvents = [
             [ this.context.config.exposed.defaultEvent, ( event ) => { this.#event_default( event ); } ],
-            [ 'sending', ( event ) => { this.#event_sending( event ); } ],
+            [ prefix + 'sending', ( event ) => { this.#event_sending( event ); } ],
             [ 'submit', ( event ) => { this.#submit_disabled_state( event ); } ],
-            [ 'error', ( event ) => { this.#submit_disabled_state( event ); } ],
-            [ 'complete', ( event ) => { this.#submit_disabled_state( event ); } ],
-            [ 'reset', ( event ) => { this.#event_reset( event ); } ],
+            [ prefix + 'error', ( event ) => { this.#submit_disabled_state( event ); } ],
+            [ prefix + 'complete', ( event ) => { this.#submit_disabled_state( event ); } ],
+            [ prefix + 'reset', ( event ) => { this.#event_reset( event ); } ],
         ];
 
         // Bind form element events
@@ -992,12 +999,18 @@ export class UiFormPluginFieldControl extends UiPlugin {
         }
 
         // Get field inputs
-        const inputs = this.#get_field_inputs( field );
+        let inputs = this.#get_field_inputs( field );
 
         // Notify not found
         if ( !inputs || !inputs.length ) {
-            if ( this.debug ) this.debug.error( this.constructor.name + '::showFieldErrors No inputs found for field:', field );
-            return;
+            if ( options.mapUnknown2Global ) {
+                inputs = this.#get_field_inputs( options.global );
+                if ( this.debug ) this.debug.warn( this.constructor.name + '::showFieldErrors Unknown field mapped to global:', field );
+            }
+            if ( !inputs || !inputs.length ) {
+                if ( this.debug ) this.debug.error( this.constructor.name + '::showFieldErrors No inputs found for field:', field );
+                return;
+            }
         }
 
         // Get show position option
