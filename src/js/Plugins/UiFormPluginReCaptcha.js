@@ -127,10 +127,13 @@ export class UiFormPluginReCaptcha extends UiPlugin {
             recaptchaError : { global : false, classOn : 'ui-form--recaptcha-error' },
         };
 
+        // Event prefix
+        const prefix = ( this.context.config.get( 'eventPrefix' ) || '' );
+
         // Register events
         this.registerEvents = [
-            [ 'submit.click', ( event ) =>  { this.#event_submitClick( event ); } ],
-            [ 'reset', () =>  { this.#event_reset(); } ],
+            [ prefix + 'submit.click', ( event ) =>  { this.#event_submitClick( event ); } ],
+            [ prefix + 'reset', () =>  { this.#event_reset(); } ],
         ];
     }
 
@@ -249,9 +252,12 @@ export class UiFormPluginReCaptcha extends UiPlugin {
     #callback_loader( options ) {
         if ( window.grecaptcha ) {
 
+            // Event prefix
+            const prefix = ( this.context.config.get( 'eventPrefix' ) || '' );
+
             // Fire interceptable load event
-            if ( !this.context.dispatchEvent( 'recaptcha.load', { plugin : this }, true, true ) ) {
-                if ( this.debug ) this.debug.log( this.constructor.name + '::callback_loader Cancelled by recaptcha.load event' );
+            if ( !this.context.dispatchEvent( prefix + 'recaptcha.load', { plugin : this }, true, true ) ) {
+                if ( this.debug ) this.debug.log( this.constructor.name + '::callback_loader Cancelled by ' + prefix + 'recaptcha.load event' );
                 return;
             }
 
@@ -288,8 +294,11 @@ export class UiFormPluginReCaptcha extends UiPlugin {
             }
         }
         */
+
+        // Event prefix
+        const prefix = ( this.context.config.get( 'eventPrefix' ) || '' );
         this.context.states.unset( 'recaptchaLoading' );
-        if ( this.context.dispatchEvent( 'recaptcha.token', { token : token, plugin : this }, true, true ) ) {
+        if ( this.context.dispatchEvent( prefix + 'recaptcha.token', { token : token, plugin : this }, true, true ) ) {
             this.context.submit();
         }
     }
