@@ -62,7 +62,7 @@ export class Html5Validator {
      * @property
      * @type {string}
      */
-    errorAttribute = 'data-html5-error';
+    errorAttribute = 'data-ui-form-html5-error';
 
     /**
      * Custom validation attribute name
@@ -70,7 +70,7 @@ export class Html5Validator {
      * @property
      * @type {string}
      */
-    validateAttribute = 'data-html5-validate';
+    validateAttribute = 'data-ui-form-html5-validate';
 
     /**
      * Custom field validator
