@@ -81,7 +81,11 @@ export class UiFormPluginJSONResponse extends UiPlugin {
 
                 // Error used when none is available from the response
                 // @type {string|Array|Function}
-                unknown : 'An unknown error occured, please try again later.',
+                unknown : 'An unknown error occurred, please try again later.',
+
+                // Errors by response 'c{status}'; takes precedence over the unknown option
+                // @type {Object}
+                errByCode : {},
             },
         };
 
@@ -144,7 +148,7 @@ export class UiFormPluginJSONResponse extends UiPlugin {
         const prop = this.context.config.get( 'response.redirect' );
         if ( prop && data[ prop ] ) {
             if ( typeof data[ prop ] !== 'string' || !data[ prop ].length ) {
-                throw new UiFormPluginJSONResponseException( 'Response redirect must and url string' );
+                throw new UiFormPluginJSONResponseException( 'Response redirect must an url string' );
             }
             window.location.href = data[ prop ];
         }
@@ -153,11 +157,12 @@ export class UiFormPluginJSONResponse extends UiPlugin {
     /**
      * Field errors
      * @private
-     * @param {null|Object} data - Response data
+     * @param {Object|AsyncRequest} response - AsyncRequest
      * @return {void}
      */
-    #errors( data ) {
+    #errors( response ) {
         const options = this.context.config.get( 'response' );
+        let data = response?.responseParsed;
 
         // Skip since errors are disabled
         if ( !options.errors ) return;
@@ -178,6 +183,12 @@ export class UiFormPluginJSONResponse extends UiPlugin {
                 throw new UiFormPluginJSONResponseException( 'A fieldcontrol plugin is required for message or errors display' );
             } else {
                 let err;
+
+                // Has response code specific error
+                if ( is_empty && response && typeof options.errByCode[ 'c' + response.status ] === 'string' ) {
+                    err = options.errByCode[ 'c' + response.status ];
+                    is_empty = false;
+                }
 
                 // Can show message
                 if ( options.message && data[ options.message ] ) {
@@ -238,6 +249,6 @@ export class UiFormPluginJSONResponse extends UiPlugin {
         if ( callback ) resume = !callback( request, this );
         if ( !resume ) return;
         if ( request ) this.#redirect( request.responseParsed );
-        this.#errors( request ? request.responseParsed : null );
+        this.#errors( request );
     }
 }
