@@ -71,7 +71,7 @@ export class UiFormPluginPrefetch extends UiPlugin {
 
             // Changes default event to ready
             // @type {string}
-            defaultEvent : 'ready',
+            defaultEvent : 'form.ready',
 
             // Extends sendable states
             // @type {Array<string>}
@@ -141,7 +141,7 @@ export class UiFormPluginPrefetch extends UiPlugin {
         // Register events
         this.registerEvents = [
             [ 'initialized', () => { this.#event_initialized(); } ],
-            [ 'reset', ( event ) => { this.#event_reset( event ); } ],
+            [ 'form.reset', ( event ) => { this.#event_reset( event ); } ],
         ];
     }
 
@@ -259,7 +259,7 @@ export class UiFormPluginPrefetch extends UiPlugin {
          * @return {void}
          */
         const success_callback = () => {
-            this.context.dispatchEvent( 'prefetch.success', { request : this.#request, event : event, plugin : this } );
+            this.context.dispatchEvent( 'form.prefetch.success', { request : this.#request, event : event, plugin : this } );
             this.#ready();
         };
 
@@ -315,9 +315,9 @@ export class UiFormPluginPrefetch extends UiPlugin {
      * @return {void}
      */
     #prefetch_error( event ) {
-        this.context.dispatchEvent( 'prefetch.error', { error : event, request : this.#request, plugin : this } );
+        this.context.dispatchEvent( 'form.prefetch.error', { error : event, request : this.#request, plugin : this } );
         this.context.states.set( 'error' );
-        this.context.dispatchEvent( 'error', { event } );
+        this.context.dispatchEvent( 'form.error', { event } );
 
         // Reload page on error
         if ( this.context.config.get( 'prefetch.reloadOnError' ) ) {
@@ -334,6 +334,6 @@ export class UiFormPluginPrefetch extends UiPlugin {
     #ready() {
         this.context.plugins.run( 'readyComponent' );
         this.context.states.set( 'ready' );
-        this.context.dispatchEvent( 'ready' );
+        this.context.dispatchEvent( 'form.ready' );
     }
 }
