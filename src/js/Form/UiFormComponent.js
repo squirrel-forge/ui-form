@@ -77,6 +77,14 @@ export class UiFormComponent extends UiComponent {
          */
         defaults = defaults || {
 
+            // Event prefix
+            // @type {string}
+            eventPrefix : 'form.',
+
+            // Disabled state
+            // @type {boolean}
+            disabled :  false,
+
             // Run in async mode, default true
             // @type {boolean}
             async : true,
@@ -103,7 +111,7 @@ export class UiFormComponent extends UiComponent {
 
             // Default event
             // @type {string}
-            defaultEvent : 'initialized',
+            defaultEvent : 'form.initialized',
 
             // States that allow the form to be sent
             // @type {Array<string>}
@@ -153,7 +161,7 @@ export class UiFormComponent extends UiComponent {
         states = states || {
             initialized : {
                 classOn : 'ui-form--initialized',
-                unsets : [ 'sending', 'success', 'error', 'complete' ],
+                unsets : [ 'disabled', 'sending', 'success', 'error', 'complete' ],
             },
             sending : {
                 classOn : 'ui-form--sending',
@@ -169,6 +177,10 @@ export class UiFormComponent extends UiComponent {
             complete : {
                 global : false,
                 classOn : 'ui-form--complete',
+            },
+            disabled : {
+                classOn : 'ui-form--disabled',
+                unsets : [ 'initialized', 'sending', 'success', 'error', 'complete' ],
             },
         };
 
@@ -195,7 +207,11 @@ export class UiFormComponent extends UiComponent {
         this.bind();
 
         // Complete init
-        super.init();
+        super.init( ( instance ) => {
+
+            // Check initial disabled state
+            if ( instance.config.get( 'disabled' ) ) instance.disabled = true;
+        } );
     }
 
     /**
@@ -216,25 +232,29 @@ export class UiFormComponent extends UiComponent {
         }
         this.bindSubmits( submits );
 
+        // Event prefix
+        const prefix = ( this.config.get( 'eventPrefix' ) || '' );
+
         // Form events
         this.addEventList( [
             [ 'valid', ( event ) => { this.event_state( event ); } ],
             [ 'invalid', ( event ) => { this.event_state( event ); } ],
             [ 'submit', ( event ) => { this.#event_submit( event ); } ],
-            [ 'sending', ( event ) => { this.event_state( event ); } ],
-            [ 'success', ( event ) => { this.event_state( event ); } ],
-            [ 'error',  ( event ) => { this.event_state( event ); } ],
-            [ 'complete', ( event ) => { this.#event_complete( event ); } ],
+            [ prefix + 'sending', ( event ) => { this.event_state( event, prefix ); } ],
+            [ prefix + 'success', ( event ) => { this.event_state( event, prefix ); } ],
+            [ prefix + 'error',  ( event ) => { this.event_state( event, prefix ); } ],
+            [ prefix + 'complete', ( event ) => { this.#event_complete( event, prefix ); } ],
         ] );
     }
 
     /**
      * Event complete handler
      * @param {Event} event - Complete event
+     * @param {string|null} prefix - Event type prefix
      * @return {void}
      */
-    #event_complete( event ) {
-        this.event_state( event );
+    #event_complete( event, prefix ) {
+        this.event_state( event, prefix );
 
         // Reset after submit failed with an error response
         if ( event.detail.target.error && this.config.get( 'resetOnError' ) ) {
@@ -262,10 +282,13 @@ export class UiFormComponent extends UiComponent {
         // Add some info to the sending event
         const event_data = { event : event, button : this.#clicked_submit };
 
-        // Allow plugins and external handlers to prevent submission
-        if ( !this.dispatchEvent( 'before.submit', event_data ) || event.defaultPrevented ) {
+        // Event prefix
+        const prefix = ( this.config.get( 'eventPrefix' ) || '' );
+
+        // Allow plugins and external handlers to prevent submission even if it was prevented via the actual submit event
+        if ( !this.dispatchEvent( prefix + 'submit.before', event_data, true, true ) || event.defaultPrevented ) {
             if ( this.debug ) {
-                this.debug.log( this.constructor.name + '::event_submit default prevented via before.submit event' );
+                this.debug.log( this.constructor.name + '::event_submit default prevented via form.submit.before event' );
             }
             return;
         }
@@ -282,7 +305,37 @@ export class UiFormComponent extends UiComponent {
 
         // Begin sending
         this.states.set( 'sending' );
-        this.dispatchEvent( 'sending', event_data );
+        this.dispatchEvent( prefix + 'sending', event_data );
+    }
+
+    /**
+     * Disabled getter
+     * @public
+     * @return {boolean} - Disabled state
+     */
+    get disabled() {
+        return this.config.get( 'disabled' );
+    }
+
+    /**
+     * Disabled setter
+     * @public
+     * @param {boolean} state - Disabled state
+     * @return {void}
+     */
+    set disabled( state ) {
+        const disabled = !!state;
+        this.config.set( 'disabled', disabled );
+
+        // Event prefix
+        const prefix = ( this.config.get( 'eventPrefix' ) || '' );
+        if ( disabled ) {
+            this.states.set( 'disabled' )
+            this.dispatchEvent( prefix + 'disabled' );
+        } else {
+            this.states.set( this.config.get( 'defaultState' ) );
+            this.dispatchEvent( this.config.get( 'defaultEvent' ) );
+        }
     }
 
     /**
@@ -314,7 +367,7 @@ export class UiFormComponent extends UiComponent {
             bindNodeList( resets, [
                 [ 'click', ( event ) => {
                     event.preventDefault();
-                    this.reset( event.currentTarget.getAttribute( 'data-soft' ) === 'true' );
+                    this.reset( event.currentTarget.getAttribute( 'data-ui-form-soft-reset' ) === 'true' );
                 } ],
             ] );
         }
@@ -398,7 +451,7 @@ export class UiFormComponent extends UiComponent {
         }
 
         // Run preventable submit click event
-        if ( !this.dispatchEvent( 'submit.click', { event, button }, true, true ) ) {
+        if ( !this.dispatchEvent( ( this.config.get( 'eventPrefix' ) || '' ) + 'submit.click', { event, button }, true, true ) ) {
             event.preventDefault();
             event.stopPropagation();
         }
@@ -421,6 +474,9 @@ export class UiFormComponent extends UiComponent {
         if ( !options.url ) options.url = this.dom.getAttribute( 'action' );
         if ( !options.method ) options.method = this.dom.getAttribute( 'method' );
 
+        // Enforce event name prefix
+        options.eventPrefix = ( this.config.get( 'eventPrefix' ) || '' );
+
         // Create request and set self as parent, to allow event bubbling of: progress, success, error and complete
         this.#request = new AsyncRequest( options, this, this.debug );
 
@@ -439,7 +495,7 @@ export class UiFormComponent extends UiComponent {
         this.#request.send( data, ( processed, request ) => {
 
             // Allow plugins and external handlers to modify submission data
-            this.dispatchEvent( 'async.modify', { processed, request } );
+            this.dispatchEvent( options.eventPrefix + 'async.modify', { processed, request } );
         } );
     }
 
@@ -496,7 +552,7 @@ export class UiFormComponent extends UiComponent {
         if ( this.#request ) {
             this.#request.abort();
             this.#request = null;
-            this.dispatchEvent( 'submit.aborted' );
+            this.dispatchEvent( ( this.config.get( 'eventPrefix' ) || '' ) + 'sending.aborted' );
             if ( reset ) this.reset( soft );
         }
     }
@@ -512,8 +568,6 @@ export class UiFormComponent extends UiComponent {
         if ( !soft ) this.dom.reset();
         this.#clicked_submit = null;
         this.states.set( this.config.get( 'defaultState' ) );
-
-        // TODO: check cross browser consistency, firefox seems to reset the form on reset event.
-        this.dispatchEvent( 'reset', { soft } );
+        this.dispatchEvent( ( this.config.get( 'eventPrefix' ) || '' ) + 'reset', { soft } );
     }
 }
