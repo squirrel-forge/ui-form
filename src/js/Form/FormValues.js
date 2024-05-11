@@ -51,7 +51,7 @@ export class FormValues {
     /**
      * Constructor
      * @constructor
-     * @param {HTMLFormElement} form - Form element
+     * @param {HTMLElement} form - Form or container element
      * @param {boolean} includeDisabled - Include disabled input values
      * @param {null|console|Object} debug - Debug object
      */
@@ -61,8 +61,8 @@ export class FormValues {
         this.#debug = debug;
 
         // Dom reference
-        if ( !( form instanceof HTMLFormElement ) ) {
-            throw new FormValuesException( 'Argument form must be an instance of HTMLFormElement' );
+        if ( !( form instanceof HTMLElement ) ) {
+            throw new FormValuesException( 'Argument form must be an instance of HTMLElement' );
         }
         this.#form = form;
 
@@ -468,18 +468,27 @@ export class FormValues {
 
                 // Primitive value
                 this.#set_select_single_value( inputs, value, i );
-            } else {
+            } else if ( inputs[ i ].type === 'file') {
+
+                // Cannot set file input value
+                if ( this.#debug ) this.#debug.warn( this.constructor.name + '::set_inputs_values > file not settable', inputs[ i ], value );
+            } else if ( value !== null ) {
 
                 // Set value property
                 inputs[ i ].value = value;
                 if ( this.#setValuesAsDefault ) {
                     if ( inputs[ i ].type === 'textarea' ) {
-                        inputs[ i ].innerText = value;
+
+                        // How and why it must be innerHTML to set the textarea default value
+                        // @url https://stackoverflow.com/questions/19030742/difference-between-innertext-innerhtml-and-value
+                        inputs[ i ].innerHTML = value;
                     } else {
                         inputs[ i ].setAttribute( 'value', value );
                     }
                 }
                 if ( this.#debug ) this.#debug.log( this.constructor.name + '::set_inputs_values > value', inputs[ i ], value );
+            } else {
+                if ( this.#debug ) this.#debug.warn( this.constructor.name + '::set_inputs_values > null', inputs[ i ], value );
             }
         }
     }
@@ -570,7 +579,7 @@ export class FormValues {
      * Get input value
      * @public
      * @param {HTMLInputElement} input - Input element
-     * @return {null|string|boolean|FileList|File} - Input value
+     * @return {null|string|number|boolean|FileList|File} - Input value
      */
     get_input_value( input ) {
         if ( this.#includeDisabled || !input.disabled ) {
@@ -586,6 +595,8 @@ export class FormValues {
                     return input.files[ 0 ];
                 }
                 return null;
+            case 'number':
+                return `${v}`.length ? parseFloat( v ) : null;
             case 'text' :
             default :
                 return v;
