@@ -17,6 +17,11 @@ export { UiFieldsetTemplate } from './Form/UiFieldsetTemplate.js';
 export { UiFormTemplate } from './Form/UiFormTemplate.js';
 
 /**
+ * Helpers
+ */
+export { errorsToHTML } from './helpers/errorsToHTML.js';
+
+/**
  * Input
  */
 export { UiInputTemplate } from './Input/UiInputTemplate.js';
