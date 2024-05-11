@@ -25,6 +25,7 @@ class UiInputTemplateException extends Exception {}
  * @property {null|number} min - Min value
  * @property {null|number} max - Max value
  * @property {null|number} step - Stepped value
+ * @property {null|(25,30,33,40,50,60,66,70,75,100,'wide')} width - Input width
  * @property {null|Array<string>} classes - List of wrapper classes
  * @property {null|Array<string>} attr - List of wrapper attributes
  * @property {null|Array<string>} attributes - List of input attributes
@@ -84,6 +85,7 @@ export class UiInputTemplate extends UiTemplate {
         min : null,
         max : null,
         step : null,
+        width: null,
         classes : [],
         attr : [],
         attributes : [],
@@ -124,9 +126,12 @@ export class UiInputTemplate extends UiTemplate {
 
         // Set any default classes and attributes for the component
         const classes = [ 'ui-input' ];
-        if ( data.type === 'hidden' ) classes.push( 'ui-input--hidden' );
+        const default_types = [ 'date', 'datetime', 'email', 'number', 'select', 'text' ];
+        if ( default_types.includes( data.type ) ) classes.push( 'ui-input--default' );
+        classes.push( `ui-input--${data.type}` );
         if ( data.type === 'checkbox' && data.icon === null ) data.icon = 'check';
         if ( data.required ) classes.push( 'ui-input--required' );
+        if ( data.width ) classes.push( `ui-input--${data.width}`);
         if ( data.classes instanceof Array ) classes.push( ...data.classes );
         const attr = [];
         if ( data.attr instanceof Array ) attr.push( ...data.attr );
