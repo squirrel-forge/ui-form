@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.11.0
+ - Updated *FormComponent* to use the new *eventPrefix* option from ui-core to fix browser issues with the default *reset* event.
+ - Added *disabled* state to *FormComponent* must be set via the corresponding instance property.
+ - Updated *HTML5Validator* default property names for validate and error attributes.
+ - Added *errorsToHTML()* for easy html conversion.
+ - Updated *FormValues* to handle number input, fixed textarea and file setter and allow for any type of container.
+ - Updated *UiFormPluginFieldControl* event prefix and map unknown errors to global option.
+ - Updated *UiFormPluginJSONResponse* to allow for response code based errors.
+ - Updated *UiFormPluginPrefetch* event prefix.
+ - Updated *UiFormPluginReCaptcha* event prefix.
+
 ## 0.10.0
  - Added *UiFormTemplate* for rendering forms.
  - Added *UiFieldsetTemplate* for rendering fieldsets.

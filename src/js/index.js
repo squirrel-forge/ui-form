@@ -1,8 +1,8 @@
 /* !
  * @module      : @squirrel-forge/ui-form
- * @version     : 0.10.0
+ * @version     : 0.11.0
  * @license     : MIT
- * @copyright   : 2022 squirrel-forge
+ * @copyright   : 2024 squirrel-forge
  * @author      : Daniel Hartwell aka. siux <me@siux.info>
  * @description : An async Form component, event based with extensive plugin support, made for the browser and babel compatible.
  */
