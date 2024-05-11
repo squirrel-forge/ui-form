@@ -48,6 +48,14 @@ $-config: (
   disabled-input-background-color : whitesmoke,
   error-input-border-color : crimson,
   error-input-background-color : lavenderblush,
+  error-text-color : white,
+  error-background-color : crimson,
+  error-padding: 0.25em,
+  error-border-radius: 0.2em,
+  error-tail-width: 0.25em,
+  error-tail-height: 0.25em,
+  error-tail-indent: 0.5em,
+  error-transition: 0.3s ease,
   spaced-input-max-width: 12em,
   transition: 0.3s ease,
 );
@@ -167,70 +175,6 @@ $-config: (
       justify-content: center;
     }
 
-    &--horizontal {
-      align-items: center;
-      flex-wrap: nowrap;
-
-      .#{$class} {
-        &__label {
-          padding: var(--#{$props}label-padding-horizontal);
-          width: auto;
-          white-space: nowrap;
-
-          & + .#{$class}__input {
-            margin-inline-start: 0.25rem;
-          }
-        }
-        &__input {
-          & + .#{$class}__label {
-            margin-inline-start: 0.25rem;
-          }
-        }
-      }
-    }
-
-    &--spaced {
-      .#{$class} {
-        &__label {
-          & + .#{$class}__input {
-            margin: auto 0 auto auto;
-          }
-        }
-        &__input {
-          max-width: var(--#{$props}spaced-input-max-width);
-
-          & + .#{$class}__label {
-            margin: auto auto auto 0;
-          }
-        }
-      }
-    }
-
-    &--no-label-break {
-      .#{$class} {
-        &__label {
-          white-space: nowrap;
-        }
-      }
-    }
-
-    &--grow {
-      flex-grow: 1;
-
-      &-more {
-        flex-grow: 10;
-      }
-      &-most {
-        flex-grow: 100;
-      }
-    }
-
-    &--input-align-right {
-      input, select, textarea {
-        text-align: right;
-      }
-    }
-
     &--color {
       --ui-input-spaced-input-max-width: 3em;
 
@@ -240,6 +184,12 @@ $-config: (
         height: 1.75em;
         margin: -0.3125em 0;
       }
+
+
+    }
+
+    &--hidden {
+      display: none;
     }
 
     &--text {
@@ -336,6 +286,88 @@ $-config: (
       }
     }
 
+    &--horizontal {
+      align-items: center;
+      flex-wrap: nowrap;
+
+      .#{$class} {
+        &__label {
+          padding: var(--#{$props}label-padding-horizontal);
+          width: auto;
+
+          & + .#{$class}__input {
+            margin-inline-start: 0.25rem;
+          }
+        }
+        &__input {
+          & + .#{$class}__label {
+            margin-inline-start: 0.25rem;
+          }
+        }
+      }
+    }
+
+    &:not(.#{$class}--label-multiline) {
+      .#{$class} {
+        &__label {
+          white-space: nowrap;
+        }
+      }
+    }
+
+    &--spaced {
+      .#{$class} {
+        &__label {
+          & + .#{$class}__input {
+            margin: auto 0 auto auto;
+          }
+        }
+        &__input {
+          max-width: var(--#{$props}spaced-input-max-width);
+
+          & + .#{$class}__label {
+            margin: auto auto auto 0;
+          }
+        }
+      }
+    }
+
+    &--no-label-break {
+      .#{$class} {
+        &__label {
+          white-space: nowrap;
+        }
+      }
+    }
+
+    &--grow {
+      flex-grow: 1;
+      width: auto;
+
+      &-label {
+        &.#{$class}--horizontal {
+          .#{$class} {
+            &__label {
+              flex-grow: 1;
+            }
+          }
+        }
+      }
+
+      &-more {
+        flex-grow: 10;
+      }
+      &-most {
+        flex-grow: 100;
+      }
+    }
+
+    &--input-align-right {
+      input, select, textarea {
+        text-align: right;
+      }
+    }
+
     &--readonly,
     &--disabled {
       cursor: not-allowed;
@@ -366,29 +398,29 @@ $-config: (
       bottom: 0;
       font-style: normal;
       font-size: 80%;
-      color: white;
-      background: crimson;
-      border-radius: 0.2em;
+      color: var(--#{$props}error-text-color);
+      background: var(--#{$props}error-background-color);
+      border-radius: var(--#{$props}error-border-radius);
       width: max-content;
       min-width: 1em;
       max-width: 100%;
       min-height: 0;
-      padding: 0.25em;
+      padding: var(--#{$props}error-padding);
       margin: 0;
       opacity: 0;
       transform: translate(0, 0);
-      transition: 0.3s ease;
+      transition: var(--#{$props}error-transition);
 
       &::before {
         pointer-events: none;
         position: absolute;
-        top: -0.25em;
-        left: 0.5em;
+        top: calc(var(--#{$props}error-tail-height) * -1);
+        left: var(--#{$props}error-tail-indent);
         width: 0;
         height: 0;
-        border-left: 0.25em solid transparent;
-        border-right: 0.25em solid transparent;
-        border-bottom: 0.25em solid crimson;
+        border-left: calc(var(--#{$props}error-tail-width) / 2) solid transparent;
+        border-right: calc(var(--#{$props}error-tail-width) / 2) solid transparent;
+        border-bottom: var(--#{$props}error-tail-height) solid var(--#{$props}error-background-color);
         content: '';
         opacity: 0;
         transition: 0.3s ease;
@@ -417,7 +449,6 @@ $-config: (
     &--error-visible {
       .#{$class}__error {
         min-width: 6em;
-        min-height: 2em;
         opacity: 1;
         transform: translate(0, 100%);
 
@@ -504,18 +535,31 @@ $-config: (
     &--25 {
       width: calc(100% / 4 - 0.5em);
     }
+    &--30 {
+      width: calc(100% / 10 * 3 - 0.5em);
+    }
     &--33 {
       width: calc(100% / 3 - 0.5em);
+    }
+    &--40 {
+      width: calc(100% / 10 * 4 - 0.5em);
     }
     &--50 {
       width: calc(100% / 2 - 0.5em);
     }
+    &--60 {
+      width: calc(100% / 10 * 6 - 0.5em);
+    }
     &--66 {
       width: calc(100% / 3 * 2 - 0.5em);
+    }
+    &--70 {
+      width: calc(100% / 10 * 7 - 0.5em);
     }
     &--75 {
       width: calc(100% / 4 * 3 - 0.5em);
     }
+    &--100,
     &--wide {
       width: 100%;
     }
