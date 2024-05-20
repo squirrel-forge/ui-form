@@ -29,7 +29,7 @@ class UiInputTemplateException extends Exception {}
  * @property {null|Array<string>} classes - List of wrapper classes
  * @property {null|Array<string>} attr - List of wrapper attributes
  * @property {null|Array<string>} attributes - List of input attributes
- * @property {null|Array<string>} autocomplete - List of autocomplete values
+ * @property {null|Array<string|string[]>} autocomplete - List of autocomplete values
  * @property {null|UiInputLabelTemplateData} label - Input label
  * @property {null|string|Array<string|UiInputOptionTemplateData>} options - Select options
  * @property {null|string} pseudo - Pseudo element content
@@ -156,7 +156,12 @@ export class UiInputTemplate extends UiTemplate {
             attributes.push( `autocomplete="off"` );
             autocomplete += `<datalist id="${data.id}_autocomplete">`;
             for ( let i = 0; i < data.autocomplete.length; i++ ) {
-                autocomplete += '<option>' + data.autocomplete[ i ] + '</option>';
+                let label = data.autocomplete[ i ], value;
+                if ( label instanceof Array ) {
+                    value = label.pop();
+                    label = label.pop();
+                }
+                autocomplete += `<option${typeof value !== 'undefined' ? ` value="${value}"` : ''}>` + label + '</option>';
             }
             autocomplete += '</datalist>';
         }
